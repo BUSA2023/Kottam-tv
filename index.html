@@ -61,8 +61,8 @@
         .dashboard-content { display: flex; justify-content: space-around; align-items: center; flex: 1; padding: 0 4vw; min-height: 0; }
         .team-block { text-align: center; width: 40%; background: rgba(255,255,255,0.05); padding: 4vh; border-radius: 4vh; border: 0.2vh solid rgba(255,255,255,0.1); box-shadow: inset 0 0 50px rgba(0,0,0,0.5); }
         .team-name { font-size: 5vh; font-weight: 900; margin-bottom: 1vh; text-transform: uppercase; }
-        .team-name.team-a { color: #fbbf24; text-shadow: 0 2px 10px rgba(251,191,36,0.3); } /* Khaibar Warriors */
-        .team-name.team-b { color: #34d399; text-shadow: 0 2px 10px rgba(52,211,153,0.3); } /* Khandaq Fighters */
+        .team-name.team-a { color: #fbbf24; text-shadow: 0 2px 10px rgba(251,191,36,0.3); } 
+        .team-name.team-b { color: #34d399; text-shadow: 0 2px 10px rgba(52,211,153,0.3); } 
         .huge-points { font-size: 24vh; font-weight: 900; line-height: 1; }
         .vs-circle { background: #0f172a; border: 0.4vh solid #1e293b; border-radius: 50%; width: 12vh; height: 12vh; display: flex; align-items: center; justify-content: center; font-size: 4vh; font-weight: 900; color: #64748b; font-style: italic; }
 
@@ -180,7 +180,6 @@
         <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'"></div>
         <div class="page-title">വിഭാഗം തിരിച്ചുള്ള പോയിന്റുകൾ - ആൺകുട്ടികൾ (BOYS CATEGORY SCORES)</div>
         <div class="category-grid">
-            <!-- 6 Categories dynamically populated -->
             <div class="cat-box"><div class="cat-title">Kiddies</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-0-a-boys">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-0-b-boys">0</span></div></div>
             <div class="cat-box"><div class="cat-title">Sub Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-1-a-boys">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-1-b-boys">0</span></div></div>
             <div class="cat-box"><div class="cat-title">Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-2-a-boys">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-2-b-boys">0</span></div></div>
@@ -195,7 +194,6 @@
         <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'"></div>
         <div class="page-title">വിഭാഗം തിരിച്ചുള്ള പോയിന്റുകൾ - പെൺകുട്ടികൾ (GIRLS CATEGORY SCORES)</div>
         <div class="category-grid">
-            <!-- 6 Categories dynamically populated -->
             <div class="cat-box"><div class="cat-title">Kiddies</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-0-a-girls">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-0-b-girls">0</span></div></div>
             <div class="cat-box"><div class="cat-title">Sub Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-1-a-girls">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-1-b-girls">0</span></div></div>
             <div class="cat-box"><div class="cat-title">Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-2-a-girls">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-2-b-girls">0</span></div></div>
@@ -206,6 +204,20 @@
     </div>
 
     <!-- DYNAMIC TABLES CONTAINER (Pages 5, 6, 7...) -->
+    <div id="dynamic-views-container"></div>
+</div>
+
+<script>
+    var appStarted = false;
+    var wakeLockObj = null;
+
+    async function preventSleep() {
+        if(!appStarted) return;
+        try {
+            if ('wakeLock' in navigator) { 
+                if(wakeLockObj) await wakeLockObj.release().catch(e=>{}); 
+                wakeLockObj = await navigator.wakeLock.request('screen');
+            }
         } catch(e) {}
         try { if (typeof tizen !== 'undefined' && tizen.power) tizen.power.request('SCREEN', 'SCREEN_NORMAL'); } catch(e) {}
     }
@@ -361,7 +373,8 @@
             var cat = prog.cat || 'General';
             if(!CATEGORY_ORDER.includes(cat)) cat = 'General';
 
-            var isGrp = res.isGroup === true || (prog.name && (prog.name.toLowerCase().includes('group') || prog.name.toLowerCase().includes('burd') || prog.name.toLowerCase().includes('qawwa') || prog.name.toLowerCase().includes('mala') || prog.name.toLowerCase().includes('mash up') || prog.name.toLowerCase().includes('moulid') || prog.name.toLowerCase().includes('padappayatt') || prog.name.toLowerCase().includes('newspaper') || prog.name.toLowerCase().includes('collage')));
+            var progNameLower = (prog.name || '').toLowerCase();
+            var isGrp = res.isGroup === true || (progNameLower.includes('group') || progNameLower.includes('burd') || progNameLower.includes('qawwa') || progNameLower.includes('mala') || progNameLower.includes('mash up') || progNameLower.includes('moulid') || progNameLower.includes('padappayatt') || progNameLower.includes('newspaper') || progNameLower.includes('collage'));
             
             var fPts = res.pts1 !== undefined ? res.pts1 : (isGrp ? 10 : 5);
             var sPts = res.pts2 !== undefined ? res.pts2 : (isGrp ? 5 : 3);
@@ -475,7 +488,8 @@
                 var a1=0, a2=0, a3=0, b1=0, b2=0, b3=0;
                 
                 if (tRes) {
-                    var isGrp = tRes.isGroup === true || (tProg.name && (tProg.name.toLowerCase().includes('group') || tProg.name.toLowerCase().includes('burd') || tProg.name.toLowerCase().includes('qawwa') || tProg.name.toLowerCase().includes('mala') || tProg.name.toLowerCase().includes('mash up') || tProg.name.toLowerCase().includes('moulid') || tProg.name.toLowerCase().includes('padappayatt') || tProg.name.toLowerCase().includes('newspaper') || tProg.name.toLowerCase().includes('collage')));
+                    var tNameLower = (tProg.name || '').toLowerCase();
+                    var isGrp = tRes.isGroup === true || (tNameLower.includes('group') || tNameLower.includes('burd') || tNameLower.includes('qawwa') || tNameLower.includes('mala') || tNameLower.includes('mash up') || tNameLower.includes('moulid') || tNameLower.includes('padappayatt') || tNameLower.includes('newspaper') || tNameLower.includes('collage'));
                     var tF = tRes.pts1 !== undefined ? tRes.pts1 : (isGrp ? 10 : 5); 
                     var tS = tRes.pts2 !== undefined ? tRes.pts2 : (isGrp ? 5 : 3); 
                     var tT = tRes.pts3 !== undefined ? tRes.pts3 : (isGrp ? 3 : 1);
