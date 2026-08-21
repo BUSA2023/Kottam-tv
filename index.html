@@ -2,195 +2,276 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <title>Fest Live TV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ladal Madeena 2K26 - Live TV Scoreboard</title>
     
     <!-- Premium Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;700;800&family=Outfit:wght@400;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Firebase SDK (v8 for optimal standalone legacy TV support) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <style>
         /* ========================================================
-           TV OPTIMIZED CSS (Maroon & Gold Theme)
+           ULTRA-LITE TV OPTIMIZED CSS (STATIC BACKGROUND, NO LAG)
            ======================================================== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
             font-family: 'Anek Malayalam', sans-serif; 
-            background: linear-gradient(135deg, #450a0a 0%, #1a0202 100%);
+            background: #020617; /* Solid dark color to save TV RAM */
             color: #ffffff; 
             overflow: hidden; 
             height: 100vh; width: 100vw;
         }
         .num-font { font-family: 'Outfit', sans-serif; }
 
-        /* ZERO GRAVITY BACKGROUND EFFECT */
-        .zero-gravity-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -1; overflow: hidden; pointer-events: none;
-        }
-        .orb {
-            position: absolute; border-radius: 50%;
-            animation: pulseOrb infinite ease-in-out;
-            box-shadow: 0 0 2vh rgba(251, 191, 36, 0.2);
-        }
-        @keyframes pulseOrb { 0% { opacity: 0.05; } 50% { opacity: 0.2; } 100% { opacity: 0.05; } }
-
         /* OVERLAYS */
         #start-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.95); z-index: 9999;
+            background: #000000; z-index: 9999;
             display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer;
         }
-        .start-btn { background: #b91c1c; color: #fef08a; padding: 3vh 4vw; font-size: 4vh; font-weight: bold; border-radius: 2vh; border: 0.2vh solid #fef08a; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 3vh rgba(185, 28, 28, 0.8); transition: 0.3s;}
+        .start-btn { background: #fbbf24; color: #000; padding: 3vh 4vw; font-size: 4vh; font-weight: 900; border-radius: 2vh; border: none; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 10px 25px rgba(251, 191, 36, 0.4);}
         
-        /* MAIN VIEW CONTAINER */
+        /* MAIN VIEW CONTAINER - Simplified Fade */
         .view-container {
             position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-            display: none; flex-direction: column; padding: 4vh 4vw; 
-            animation: fadeIn 0.8s ease-in-out; overflow: hidden;
+            display: none; flex-direction: column;
+            padding: 4vh 4vw; 
+            animation: simpleFade 1s ease-in-out; 
+            overflow: hidden;
         }
         .view-active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes simpleFade { from { opacity: 0; } to { opacity: 1; } }
 
         /* HEADER & TITLE */
-        .header { text-align: center; margin-bottom: 2vh; height: 12vh; display: flex; align-items: center; justify-content: center; }
-        .fest-logo-img { height: 11vh; max-height: 100px; object-fit: contain; border-radius: 1vh; box-shadow: 0 0 2vh rgba(251, 191, 36, 0.2); }
+        .header { text-align: center; margin-bottom: 2vh; height: 10vh; display: flex; align-items: center; justify-content: center; }
+        .fest-logo-img { height: 9vh; max-height: 80px; object-fit: contain; border-radius: 1vh; filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.5));}
         
         .page-title { 
             text-align: center; font-size: 3vh; color: #fbbf24; margin-bottom: 2vh; 
-            font-weight: bold; background: rgba(0,0,0,0.5); padding: 1vh; 
+            font-weight: bold; background: rgba(255,255,255,0.05); padding: 1vh; 
             border-radius: 2vh; text-transform: uppercase; letter-spacing: 0.2vw;
-            border-bottom: 0.2vh solid rgba(251, 191, 36, 0.3); flex-shrink: 0;
+            flex-shrink: 0; border: 1px solid rgba(251, 191, 36, 0.2);
         }
 
-        /* --- STATS DASHBOARD --- */
-        .stats-dashboard { display: flex; justify-content: center; gap: 4vw; flex: 1; align-items: center; padding: 0 2vw; }
-        .big-stat-box { background: rgba(0, 0, 0, 0.4); border: 0.3vh solid rgba(251, 191, 36, 0.3); border-radius: 3vh; padding: 6vh 4vw; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; box-shadow: inset 0 0 5vh rgba(153, 27, 27, 0.5); }
-        .big-stat-value { font-size: 14vh; font-weight: 900; color: #fef08a; line-height: 1; text-shadow: 0 0 3vh rgba(251, 191, 36, 0.4); margin-bottom: 1vh;}
-        .big-stat-label { font-size: 3vh; color: #fca5a5; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2vw; }
+        /* --- PAGE 1: TOTAL SCORE --- */
+        .dashboard-content { display: flex; justify-content: space-around; align-items: center; flex: 1; padding: 0 4vw; min-height: 0; }
+        .team-block { text-align: center; width: 40%; background: rgba(255,255,255,0.05); padding: 4vh; border-radius: 4vh; border: 0.2vh solid rgba(255,255,255,0.1); box-shadow: inset 0 0 50px rgba(0,0,0,0.5); }
+        .team-name { font-size: 5vh; font-weight: 900; margin-bottom: 1vh; text-transform: uppercase; }
+        .team-name.team-a { color: #fbbf24; text-shadow: 0 2px 10px rgba(251,191,36,0.3); } /* Khaibar Warriors */
+        .team-name.team-b { color: #34d399; text-shadow: 0 2px 10px rgba(52,211,153,0.3); } /* Khandaq Fighters */
+        .huge-points { font-size: 24vh; font-weight: 900; line-height: 1; }
+        .vs-circle { background: #0f172a; border: 0.4vh solid #1e293b; border-radius: 50%; width: 12vh; height: 12vh; display: flex; align-items: center; justify-content: center; font-size: 4vh; font-weight: 900; color: #64748b; font-style: italic; }
 
-        /* --- LATEST RESULTS --- */
+        .stats-row { display: flex; justify-content: center; gap: 3vw; margin-top: 3vh; flex-shrink: 0; height: 15vh; }
+        .stat-box { background: rgba(255,255,255,0.05); border: 0.2vh solid rgba(255,255,255,0.1); border-radius: 2vh; padding: 2vh 3vw; text-align: center; flex: 1; max-width: 20vw; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .stat-value { font-size: 5vh; font-weight: 900; color: #a78bfa; line-height: 1.1; }
+        .stat-label { font-size: 1.8vh; color: #cbd5e1; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1vw; margin-top: 0.5vh;}
+
+        /* --- PAGE 2: LATEST RESULTS --- */
         .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5vh; flex: 1; min-height: 0; overflow: hidden; padding: 0.5vh; }
-        .res-card { background: rgba(0,0,0,0.4); border: 0.2vh solid rgba(251, 191, 36, 0.2); border-radius: 2vh; padding: 2vh; display: flex; flex-direction: column; justify-content: center; }
-        .res-card.newest { grid-column: span 2; border-color: #fbbf24; background: linear-gradient(135deg, rgba(153,27,27,0.6) 0%, rgba(0,0,0,0.6) 100%); padding: 3vh; position: relative; box-shadow: 0 0 2vh rgba(251, 191, 36, 0.15); }
+        .res-card { background: rgba(255,255,255,0.05); border: 0.2vh solid rgba(255,255,255,0.1); border-radius: 2vh; padding: 2vh; display: flex; flex-direction: column; justify-content: center; }
+        .res-card.newest { grid-column: span 2; border-color: #fbbf24; background: rgba(251, 191, 36, 0.05); padding: 3vh; position: relative; }
         
         .corner-ribbon { width: 15vh; height: 15vh; overflow: hidden; position: absolute; top: 0; right: 0; z-index: 10; border-radius: 0 2vh 0 0; }
-        .corner-ribbon::before { content: '✨ LATEST'; position: absolute; display: block; width: 22vh; padding: 1vh 0; background: linear-gradient(90deg, #fbbf24, #f59e0b); box-shadow: 0 1vh 2vh rgba(0,0,0,0.4); color: #78350f; font-weight: 900; font-size: 1.5vh; text-align: center; right: -5vh; top: 3vh; transform: rotate(45deg); }
+        .corner-ribbon::before { content: 'LATEST'; position: absolute; display: block; width: 22vh; padding: 1vh 0; background: #fbbf24; color: #000; font-weight: 900; font-size: 1.5vh; text-align: center; right: -5vh; top: 3vh; transform: rotate(45deg); }
 
-        .rc-title { font-weight: bold; color: #fff; border-bottom: 0.1vh solid rgba(251, 191, 36, 0.3); padding-bottom: 1vh; margin-bottom: 1.5vh; display: flex; justify-content: space-between; align-items: center;}
-        .rc-title-text { display: flex; flex-direction: column; }
-        .rc-title-text span { font-size: 2.8vh; color: #fbbf24; }
-        .rc-cat { font-size: 1.5vh; background: #7f1d1d; padding: 0.5vh 1vw; border-radius: 1vh; color: #fef08a; font-weight: bold; text-transform: uppercase; border: 0.1vh solid #fbbf24;}
+        .rc-title { font-weight: bold; color: #fff; border-bottom: 0.1vh solid rgba(255,255,255,0.1); padding-bottom: 1vh; margin-bottom: 1.5vh; display: flex; justify-content: space-between; align-items: center;}
+        .rc-title-text { display: flex; align-items: center; gap: 10px; }
+        .rc-title-text span { font-size: 2.8vh; }
+        .rc-cat { font-size: 1.5vh; background: #1e293b; padding: 0.5vh 1vw; border-radius: 1vh; color: #94a3b8; font-weight: bold; text-transform: uppercase;}
         
-        .rc-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 1vh 1.5vw; border-radius: 1vh; margin-bottom: 1vh; border-left: 0.4vh solid transparent; }
-        .rc-row.first { border-left-color: #fbbf24; }
-        .rc-row.second { border-left-color: #94a3b8; }
-        .rc-row.third { border-left-color: #b45309; }
-        .rc-name { font-size: 2.5vh; font-weight: bold; color: #f8fafc; }
-        .rc-chest { font-size: 1.5vh; font-weight: bold; padding: 0.5vh 1vw; border-radius: 0.8vh; background: rgba(255,255,255,0.1); color: #fef08a; font-family: 'Outfit', sans-serif;}
+        .rc-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 1vh 1.5vw; border-radius: 1vh; margin-bottom: 1vh; }
+        .rc-name { font-size: 2.5vh; font-weight: bold; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;}
+        .rc-team { font-size: 1.5vh; font-weight: bold; padding: 0.5vh 1vw; border-radius: 0.8vh; background: rgba(255,255,255,0.1); white-space: nowrap;}
+        .rc-team.a { color: #fbbf24; } .rc-team.b { color: #34d399; }
 
-        /* --- TOP SCORERS (CATEGORY PAGES) --- */
-        .category-container { display: flex; justify-content: space-between; gap: 3vw; flex: 1; align-items: stretch; min-height: 0; }
-        .cat-box { flex: 1; background: rgba(0,0,0,0.4); border: 0.2vh solid rgba(251, 191, 36, 0.2); border-radius: 3vh; padding: 4vh 3vw; display: flex; flex-direction: column; box-shadow: inset 0 0 3vh rgba(153, 27, 27, 0.3); }
-        .cat-title { font-size: 4vh; font-weight: bold; color: #fbbf24; margin-bottom: 3vh; text-align: center; text-transform: uppercase; border-bottom: 0.2vh solid rgba(251, 191, 36, 0.3); padding-bottom: 1.5vh;}
-        
-        .scorer-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5vh; background: rgba(0,0,0,0.5); padding: 2vh 2vw; border-radius: 2vh; border-left: 0.5vh solid transparent; }
-        .scorer-row.rank-1 { border-left-color: #fbbf24; background: linear-gradient(90deg, rgba(251,191,36,0.1) 0%, rgba(0,0,0,0.5) 100%); }
-        .scorer-row.rank-2 { border-left-color: #94a3b8; }
-        .scorer-row.rank-3 { border-left-color: #b45309; }
-        
-        .scorer-info { display: flex; align-items: center; gap: 1.5vw; }
-        .scorer-rank { font-size: 4vh; font-weight: 900; width: 5vh; text-align: center; }
-        .rank-1 .scorer-rank { color: #fbbf24; } .rank-2 .scorer-rank { color: #94a3b8; } .rank-3 .scorer-rank { color: #b45309; }
-        
-        .scorer-details { display: flex; flex-direction: column; }
-        .scorer-name { font-size: 2.8vh; font-weight: bold; color: #f8fafc; }
-        .scorer-chest { font-size: 1.5vh; color: #fca5a5; font-family: 'Outfit', sans-serif; font-weight: bold; letter-spacing: 0.1vw; }
-        .scorer-pts { font-size: 4vh; font-weight: 900; color: #fef08a; }
-        .scorer-pts span { font-size: 1.5vh; color: #fca5a5; font-weight: normal; margin-left: 0.5vw; }
+        /* --- PAGE 3: CATEGORY SCORES --- */
+        .category-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2.5vh 3vw; flex: 1; align-items: stretch; min-height: 0;}
+        .cat-box { background: rgba(255,255,255,0.05); border: 0.1vh solid rgba(255,255,255,0.1); border-radius: 2vh; padding: 2.5vh 2vw; text-align: center; display:flex; flex-direction:column; justify-content:center;}
+        .cat-title { font-size: 3vh; font-weight: 900; color: #a78bfa; margin-bottom: 2vh; text-transform: uppercase; border-bottom: 0.1vh solid rgba(255,255,255,0.1); padding-bottom: 1.5vh; letter-spacing: 0.1vw;}
+        .cat-team-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1vh; background: rgba(0,0,0,0.5); padding: 1.5vh 2vw; border-radius: 1vh; }
+        .cat-tname { font-size: 2.2vh; font-weight: bold; }
+        .cat-tname.a { color: #fbbf24; } .cat-tname.b { color: #34d399; }
+        .cat-pts { font-size: 4vh; font-weight: 900; color: #fff; }
 
-        .no-data { text-align: center; color: #fca5a5; font-size: 2.5vh; margin-top: auto; margin-bottom: auto; font-style: italic; }
+        /* --- POINT TABLES --- */
+        .table-container { background: rgba(255,255,255,0.05); border-radius: 2vh; padding: 1vh; border: 0.1vh solid rgba(255,255,255,0.1); flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .pt-header-table { width: 100%; border-collapse: collapse; background: #000; border-radius: 1vh 1vh 0 0; flex-shrink: 0; table-layout: fixed; }
+        .no-scroll-wrapper { flex: 1; background: rgba(0,0,0,0.3); border-radius: 0 0 1vh 1vh; overflow: hidden; display: flex; flex-direction: column; }
+        .pt-table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
+        .pt-table tbody tr { height: 1%; } 
+        th, td { text-align: center; border-bottom: 0.1vh solid rgba(255,255,255,0.05); }
+        .pt-header-table th { color: #94a3b8; text-transform: uppercase; font-size: 1.8vh; border-bottom: 0.2vh solid #334155; padding: 1.5vh 1vh;}
+        .pt-table td { padding: 0.5vh 1vw; font-size: 2.2vh; font-weight: bold; }
+        .t-left { text-align: left !important; padding-left: 2vw !important; vertical-align: middle;}
+        
+        .prog-name-wrapper { display: flex; align-items: center; justify-content: flex-start; width: 100%; }
+        .p-name-txt { font-size: 2.2vh; font-weight: bold; display: flex; flex-direction: column; line-height: 1.2; color: #f1f5f9; }
+        
+        .s-tag { font-size: 1.2vh; background: #334155; padding: 0.4vh 0.6vw; border-radius: 0.5vh; color: #cbd5e1; margin-left: 1vw; font-weight: bold; text-transform: uppercase; flex-shrink: 0;}
+        .s-grp { background: #78350f; color: #fcd34d; }
+        .s-gen { background: #064e3b; color: #34d399; }
+        
+        .pt-team-a { color: #fbbf24 !important; font-size: 2.2vh !important; } 
+        .pt-team-b { color: #34d399 !important; font-size: 2.2vh !important; }
+        .br-left { border-left: 0.2vh solid #334155; }
 
         /* TOAST */
-        #toast { position: fixed; top: 4vh; right: 4vw; background: #b91c1c; color: #fef08a; padding: 2vh 3vw; border-radius: 2vh; font-size: 3vh; font-weight: bold; border: 0.2vh solid #fbbf24; transform: translateY(-20vh); transition: transform 0.5s; z-index: 10000; box-shadow: 0 1vh 3vh rgba(0,0,0,0.5);}
-        #toast.show { transform: translateY(0); }
+        #toast { position: fixed; top: 4vh; right: 4vw; background: #10b981; color: white; padding: 2vh 3vw; border-radius: 2vh; font-size: 3vh; font-weight: bold; display: none; z-index: 10000; box-shadow: 0 10px 25px rgba(0,0,0,0.5);}
     </style>
 </head>
 <body>
 
-<!-- AUDIO FILES -->
-<audio id="sound-score" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
-<audio id="sound-result" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
-
-<div class="zero-gravity-bg" id="zg-bg"></div>
+<!-- AUDIO FILES (Silent empty fallbacks if original paths break) -->
+<audio id="sound-score" src="mixkit-sci-fi-reject-notification-896.wav" preload="auto"></audio>
+<audio id="sound-result" src="mixkit-sci-fi-reject-notification-896%20(2).wav" preload="auto"></audio>
 
 <!-- START SCREEN -->
 <div id="start-overlay" onclick="startApp()">
-    <button class="start-btn">Start Live TV Display</button>
-    <p style="margin-top:2vh; font-size:2vh; color:#fca5a5; font-weight:bold;">Individual Champions Mode - Anti-Sleep Active</p>
+    <button class="start-btn">Start Live TV Scoreboard</button>
+    <p style="margin-top:2vh; font-size:2vh; color:#94a3b8; font-weight:bold;">Powered by Firebase Realtime DB</p>
 </div>
 
 <div id="toast">പുതിയ അപ്ഡേറ്റ്!</div>
 
 <div id="app" style="display:none; width: 100%; height: 100%; position: relative;">
     
-    <!-- PAGE 1: FEST OVERVIEW -->
+    <!-- PAGE 1: SCORE & STATS -->
     <div id="view-1" class="view-container view-active">
-        <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena"></div>
-        <div class="page-title">ഫെസ്റ്റ് ഡാഷ്‌ബോർഡ് (FEST OVERVIEW)</div>
-        <div class="stats-dashboard">
-            <div class="big-stat-box"><div class="big-stat-value num-font" id="stat-candidates">0</div><div class="big-stat-label">കുട്ടികൾ (Candidates)</div></div>
-            <div class="big-stat-box"><div class="big-stat-value num-font" id="stat-programs">0</div><div class="big-stat-label">മത്സരങ്ങൾ (Programs)</div></div>
-            <div class="big-stat-box"><div class="big-stat-value num-font" id="stat-results">0</div><div class="big-stat-label">ഫലങ്ങൾ (Results)</div></div>
+        <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'"></div>
+        <div class="page-title">ടീം പോയിന്റുകൾ (TOTAL SCORE)</div>
+        <div class="dashboard-content">
+            <div class="team-block"><div class="team-name team-a" id="name-teamA-1">Team A</div><div class="huge-points num-font" id="score-teamA">0</div></div>
+            <div class="vs-circle">VS</div>
+            <div class="team-block"><div class="team-name team-b" id="name-teamB-1">Team B</div><div class="huge-points num-font" id="score-teamB">0</div></div>
+        </div>
+        <div class="stats-row">
+            <div class="stat-box"><div class="stat-value num-font" id="stat-programs">0</div><div class="stat-label">മത്സരങ്ങൾ</div></div>
+            <div class="stat-box"><div class="stat-value num-font" id="stat-candidates">0</div><div class="stat-label">കുട്ടികൾ</div></div>
+            <div class="stat-box"><div class="stat-value num-font" id="stat-results">0</div><div class="stat-label">റിസൾട്ടുകൾ</div></div>
         </div>
     </div>
 
     <!-- PAGE 2: LATEST RESULTS -->
     <div id="view-2" class="view-container">
-        <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena"></div>
+        <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'"></div>
         <div class="page-title">ഏറ്റവും പുതിയ ഫലങ്ങൾ (LATEST RESULTS)</div>
         <div class="results-grid" id="results-grid-container"></div>
     </div>
 
-    <!-- PAGE 3: TOP SCORERS (SUB JUNIOR & JUNIOR) -->
+    <!-- PAGE 3: CATEGORY SCORES -->
     <div id="view-3" class="view-container">
-        <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena"></div>
-        <div class="page-title">കലാപ്രതിഭകൾ (TOP SCORERS) - PART 1</div>
-        <div class="category-container">
-            <div class="cat-box">
-                <div class="cat-title">Sub Junior</div>
-                <div id="ts-subjunior" class="flex-1 flex flex-col justify-center"></div>
-            </div>
-            <div class="cat-box">
-                <div class="cat-title">Junior</div>
-                <div id="ts-junior" class="flex-1 flex flex-col justify-center"></div>
-            </div>
+        <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'"></div>
+        <div class="page-title">വിഭാഗം തിരിച്ചുള്ള പോയിന്റുകൾ (CATEGORY SCORES)</div>
+        <div class="category-grid">
+            <!-- 6 Categories dynamically populated -->
+            <div class="cat-box"><div class="cat-title">Kiddies</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-0-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-0-b">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Sub Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-1-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-1-b">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-2-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-2-b">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Senior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-3-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-3-b">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Super Senior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-4-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-4-b">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">General</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-5-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-5-b">0</span></div></div>
         </div>
     </div>
 
-    <!-- PAGE 4: TOP SCORERS (SENIOR & SUPER SENIOR) -->
-    <div id="view-4" class="view-container">
-        <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena"></div>
-        <div class="page-title">കലാപ്രതിഭകൾ (TOP SCORERS) - PART 2</div>
-        <div class="category-container">
-            <div class="cat-box">
-                <div class="cat-title">Senior</div>
-                <div id="ts-senior" class="flex-1 flex flex-col justify-center"></div>
-            </div>
-            <div class="cat-box">
-                <div class="cat-title">Super Senior</div>
-                <div id="ts-supersenior" class="flex-1 flex flex-col justify-center"></div>
-            </div>
-        </div>
-    </div>
+    <!-- DYNAMIC TABLES CONTAINER (Pages 4, 5, 6...) -->
+    <div id="dynamic-views-container"></div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+<script>
+    var appStarted = false;
+    var wakeLockObj = null;
 
-    // Your specific Firebase Config
-    const firebaseConfig = {
+    // Wake Lock to prevent TV from sleeping
+    async function preventSleep() {
+        if(!appStarted) return;
+        try {
+            if ('wakeLock' in navigator) { 
+                if(wakeLockObj) await wakeLockObj.release().catch(e=>{}); 
+                wakeLockObj = await navigator.wakeLock.request('screen');
+            }
+        } catch(e) {}
+        try { if (typeof tizen !== 'undefined' && tizen.power) tizen.power.request('SCREEN', 'SCREEN_NORMAL'); } catch(e) {}
+    }
+
+    function simulateInteraction() {
+        if (!appStarted) return;
+        try { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift', bubbles: true })); } catch(e){}
+        preventSleep();
+    }
+
+    setInterval(simulateInteraction, 20000); 
+    document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'visible') preventSleep(); });
+
+    function unlockAudio(audioElem) {
+        if(!audioElem) return;
+        audioElem.muted = true;
+        var p = audioElem.play();
+        if (p !== undefined) p.then(() => { audioElem.pause(); audioElem.currentTime = 0; audioElem.muted = false; }).catch(e=>{});
+    }
+
+    function toggleFullScreen() {
+        try {
+            var el = document.documentElement;
+            if (el.requestFullscreen) el.requestFullscreen().catch(e=>{}); 
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        } catch (e) {}
+    }
+
+    function startApp() {
+        toggleFullScreen();
+        document.getElementById('start-overlay').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        
+        unlockAudio(document.getElementById('sound-score'));
+        unlockAudio(document.getElementById('sound-result'));
+
+        appStarted = true; 
+        simulateInteraction();
+        renderAll();
+    }
+
+    function playSound(type) {
+        if (!appStarted) return;
+        try { 
+            var audio = document.getElementById(type === 'score' ? 'sound-score' : 'sound-result'); 
+            if (audio) { audio.pause(); audio.currentTime = 0; audio.volume = 1; audio.muted = false; audio.play().catch(e=>{}); }
+        } catch(e) {}
+    }
+
+    function showToast(msg) {
+        var t = document.getElementById('toast'); 
+        t.innerText = msg; 
+        t.style.display = 'block';
+        setTimeout(function(){ t.style.display = 'none'; }, 5000);
+    }
+
+    // --- CAROUSEL LOGIC ---
+    var currentViewIndex = 1;
+    var maxViews = 3; // dynamically updated when tables are generated
+
+    setInterval(function() {
+        // Hide all views safely
+        var containers = document.querySelectorAll('.view-container');
+        containers.forEach(function(c) { c.classList.remove('view-active'); });
+        
+        currentViewIndex++;
+        if(currentViewIndex > maxViews) currentViewIndex = 1;
+        
+        var nextView = document.getElementById('view-' + currentViewIndex);
+        if(nextView) nextView.classList.add('view-active');
+        else { // Fallback if dynamic view isn't rendered yet
+            currentViewIndex = 1;
+            document.getElementById('view-1').classList.add('view-active');
+        }
+    }, 15000); // Rotate every 15 seconds
+
+    // --- FIREBASE CONFIG (Syncing to Admin Database) ---
+    var firebaseConfig = {
         apiKey: "AIzaSyCo3S007XNUl1bAfgAlMR1vJyDQBNFf6MI",
         authDomain: "kottam-eee89.firebaseapp.com",
         projectId: "kottam-eee89",
@@ -198,205 +279,206 @@
         messagingSenderId: "558082092753",
         appId: "1:558082092753:web:c0a69f647998061a3adff0"
     };
+    
+    firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db = firebase.firestore();
 
-    const firebaseApp = initializeApp(firebaseConfig);
-    const auth = getAuth(firebaseApp);
-    const db = getFirestore(firebaseApp);
+    var state = { programs: [], candidates: [], results: [] };
+    var prevScoreA = -1; var prevScoreB = -1; var prevTotalRes = -1;
+    
+    var TEAM_A = 'KHAIBAR WARRIORS';
+    var TEAM_B = 'KHANDAQ FIGHTERS';
+    var CATEGORY_ORDER = ['Kiddies', 'Sub Junior', 'Junior', 'Senior', 'Super Senior', 'General'];
 
-    window.appStarted = false;
-    let tvWakeLockAudio = null; 
-    let state = { programs: [], candidates: [], results: [] };
-    let prevTotalRes = -1;
+    function getProg(id) { for(var i=0; i<state.programs.length; i++) if(state.programs[i].id === id) return state.programs[i]; return null; }
+    function getCand(id) { for(var i=0; i<state.candidates.length; i++) if(state.candidates[i].id === id) return state.candidates[i]; return null; }
+    
+    // Listeners
+    auth.signInAnonymously().then(function() {
+        db.collection('settings').doc('config').onSnapshot(function(snap) {
+            if (snap.exists) { state.programs = snap.data().programs || []; renderAll(); }
+        });
+        db.collection('candidates').onSnapshot(function(snap) {
+            var arr = []; snap.forEach(doc => { var d = doc.data(); d.id = doc.id; arr.push(d); }); state.candidates = arr; renderAll();
+        });
+        db.collection('results').onSnapshot(function(snap) {
+            var arr = []; snap.forEach(doc => { var d = doc.data(); d.id = doc.id; arr.push(d); }); state.results = arr; renderAll();
+        });
+    });
 
-    function createZeroGravity() {
-        const bg = document.getElementById('zg-bg');
-        const colors = ['#fcd34d', '#fbbf24', '#f59e0b', '#dc2626'];
-        for(let i=0; i<5; i++) {
-            let orb = document.createElement('div');
-            orb.className = 'orb';
-            let size = Math.random() * 10 + 5; 
-            orb.style.width = size + 'vh'; orb.style.height = size + 'vh';
-            orb.style.left = Math.random() * 90 + 'vw'; orb.style.top = Math.random() * 80 + 'vh';
-            orb.style.backgroundColor = colors[i % colors.length];
-            orb.style.animationDuration = (Math.random() * 5 + 8) + 's'; 
-            bg.appendChild(orb);
-        }
-    }
-    createZeroGravity();
-
-    let wakeLockObj = null;
-    async function preventSleep() {
-        if(!window.appStarted) return;
-        try { if ('wakeLock' in navigator) { if(wakeLockObj) await wakeLockObj.release().catch(e=>{}); wakeLockObj = await navigator.wakeLock.request('screen'); } } catch(e) {}
-        try { if (typeof tizen !== 'undefined' && tizen.power) tizen.power.request('SCREEN', 'SCREEN_NORMAL'); } catch(e) {}
-        if (tvWakeLockAudio && tvWakeLockAudio.paused) { tvWakeLockAudio.play().catch(e=>{}); }
-    }
-    function simulateInteraction() {
-        if (!window.appStarted) return;
-        try { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift', bubbles: true })); } catch(e){}
-        preventSleep();
-    }
-    setInterval(simulateInteraction, 20000); 
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') preventSleep(); });
-
-    function unlockAudio(audioElem) {
-        if(!audioElem) return;
-        audioElem.muted = true;
-        let p = audioElem.play();
-        if (p !== undefined) p.then(() => { audioElem.pause(); audioElem.currentTime = 0; audioElem.muted = false; }).catch(e=>{});
-    }
-
-    function toggleFullScreen() {
-        try { let el = document.documentElement; if (el.requestFullscreen) el.requestFullscreen().catch(e=>{}); else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); } catch (e) {}
-    }
-
-    window.startApp = function() {
-        toggleFullScreen();
-        document.getElementById('start-overlay').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        unlockAudio(document.getElementById('sound-score')); 
-        unlockAudio(document.getElementById('sound-result'));
-        try { 
-            tvWakeLockAudio = document.getElementById('sound-score').cloneNode(); 
-            tvWakeLockAudio.loop = true; tvWakeLockAudio.muted = true; tvWakeLockAudio.volume = 0; 
-            tvWakeLockAudio.play().catch(e=>{}); 
-        } catch(e) {}
-        
-        window.appStarted = true; 
-        simulateInteraction(); 
-        connectToFirebase();
-    }
-
-    function playSound(type) {
-        if (!window.appStarted) return;
-        try { let audio = document.getElementById(type === 'score' ? 'sound-score' : 'sound-result'); if (audio) { audio.pause(); audio.currentTime = 0; audio.volume = 1; audio.muted = false; audio.play().catch(e=>{}); } } catch(e) {}
-    }
-
-    function showToast(msg) { let t = document.getElementById('toast'); t.innerText = msg; t.className = 'show'; setTimeout(() => { t.className = ''; }, 5000); }
-
-    let currentViewIndex = 1;
-    setInterval(() => {
-        for(let i=1; i<=4; i++) document.getElementById('view-' + i).className = 'view-container';
-        currentViewIndex++; if(currentViewIndex > 4) currentViewIndex = 1;
-        document.getElementById('view-' + currentViewIndex).className = 'view-container view-active';
-    }, 15000); 
-
-    async function connectToFirebase() {
-        try {
-            await signInAnonymously(auth);
-            
-            onSnapshot(doc(db, 'settings', 'config'), (snap) => {
-                if (snap.exists()) { state.programs = snap.data().programs || []; renderAll(); }
-            });
-            onSnapshot(collection(db, 'candidates'), (snap) => { 
-                state.candidates = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderAll(); 
-            });
-            onSnapshot(collection(db, 'results'), (snap) => { 
-                state.results = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderAll(); 
-            });
-        } catch (e) {
-            console.error("Firebase Connection Error:", e);
-        }
-    }
-
-    function getProg(id) { return state.programs.find(p => p.id === id) || null; }
-    function getCand(id) { return state.candidates.find(c => c.id === id) || null; }
-
-    function getCandString(ids) { 
-        let arr = Array.isArray(ids) ? ids : (ids ? [ids] : []); if(arr.length === 0) return '-'; 
-        return arr.map(i => { let c = getCand(i); return c ? c.name : '-'; }).join(', '); 
+    function getCandNamesString(ids) {
+        var arr = Array.isArray(ids) ? ids : (ids ? [ids] : []); if(arr.length === 0) return '-';
+        return arr.map(i => { var c = getCand(i); return c ? c.name : '-'; }).join(', ');
     }
     
-    function getChestString(ids) { 
-        let arr = Array.isArray(ids) ? ids : (ids ? [ids] : []); if(arr.length === 0) return '-'; 
-        let chests = arr.map(i => { let c = getCand(i); return c ? c.regNo : '-'; }); 
-        return chests.join(' & ');
-    }
-
-    function getTopScorers(catName) {
-        let scores = {};
-        state.candidates.filter(c => c.cat === catName).forEach(c => scores[c.id] = { ...c, points: 0 });
-
-        state.results.forEach(res => {
-            const addPts = (ids, pts) => { 
-                let arr = Array.isArray(ids) ? ids : (ids ? [ids] : []); 
-                arr.forEach(id => { if(scores[id]) scores[id].points += pts; }); 
-            };
-            addPts(res.first, 10);
-            addPts(res.second, 5);
-            addPts(res.third, 3);
+    function getTeamNamesString(ids) {
+        var arr = Array.isArray(ids) ? ids : (ids ? [ids] : []); if(arr.length === 0) return '-';
+        var teams = []; 
+        arr.forEach(i => { 
+            var c = getCand(i); 
+            if(c && c.team) { 
+                var shortName = c.team === TEAM_A ? "KHAIBAR" : "KHANDAQ";
+                if(teams.indexOf(shortName)===-1) teams.push(shortName); 
+            }
         });
-
-        return Object.values(scores)
-            .filter(c => c.points > 0)
-            .sort((a,b) => b.points - a.points)
-            .slice(0, 3); // Get Top 3
-    }
-
-    function generateTopScorerHTML(scorers) {
-        if(scorers.length === 0) return `<div class="no-data">റിസൾട്ടുകൾ വന്നിട്ടില്ല...</div>`;
-        let html = "";
-        scorers.forEach((s, index) => {
-            let rankClass = `rank-${index + 1}`;
-            html += `
-                <div class="scorer-row ${rankClass}">
-                    <div class="scorer-info">
-                        <span class="scorer-rank num-font">${index + 1}</span>
-                        <div class="scorer-details">
-                            <span class="scorer-name">${s.name}</span>
-                            <span class="scorer-chest">Chest No: ${s.regNo}</span>
-                        </div>
-                    </div>
-                    <div class="scorer-pts num-font">${s.points}<span>PTS</span></div>
-                </div>
-            `;
-        });
-        return html;
+        return teams.length > 0 ? teams.join(' & ') : '-';
     }
 
     function renderAll() {
-        if (!window.appStarted) return;
+        if (!appStarted) return;
         
-        let sortedRes = [...state.results].sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+        // Setup stats structure for all 6 categories
+        var stats = {
+            [TEAM_A]: { total: 0, 'Kiddies': 0, 'Sub Junior': 0, 'Junior': 0, 'Senior': 0, 'Super Senior': 0, 'General': 0 },
+            [TEAM_B]: { total: 0, 'Kiddies': 0, 'Sub Junior': 0, 'Junior': 0, 'Senior': 0, 'Super Senior': 0, 'General': 0 }
+        };
         
-        if (prevTotalRes !== -1 && sortedRes.length > prevTotalRes) { 
-            playSound('result'); 
-            showToast("🔥 പുതിയ റിസൾട്ട് പ്രസിദ്ധീകരിച്ചു! 🔥"); 
-            try { confetti({ particleCount: 30, spread: 80, origin: { y: 0.8 }, colors: ['#fbbf24', '#f59e0b', '#dc2626'] }); } catch(e){} 
-        }
-        prevTotalRes = sortedRes.length;
+        // Calculate Points
+        state.results.forEach(res => {
+            var prog = getProg(res.progId);
+            if (!prog) return;
+            var cat = prog.cat || 'General';
+            if(!CATEGORY_ORDER.includes(cat)) cat = 'General';
 
-        document.getElementById('stat-programs').innerText = state.programs.length; 
+            var addPts = (ids, pts) => {
+                var arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
+                arr.forEach(id => { 
+                    var c = getCand(id); 
+                    if (c && c.team && stats[c.team] !== undefined) { 
+                        stats[c.team].total += pts; 
+                        stats[c.team][cat] += pts; 
+                    } 
+                });
+            };
+
+            addPts(res.first, res.pts1 || 5);
+            addPts(res.second, res.pts2 || 3);
+            addPts(res.third, res.pts3 || 1);
+        });
+        
+        var sortedRes = state.results.slice().sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+        
+        // Audio Triggers
+        if (prevScoreA !== -1 && (prevScoreA !== stats[TEAM_A].total || prevScoreB !== stats[TEAM_B].total)) { playSound('score'); showToast("പോയിന്റ് നില അപ്ഡേറ്റ് ചെയ്തു!"); }
+        if (prevTotalRes !== -1 && sortedRes.length > prevTotalRes) { playSound('result'); showToast("🔥 പുതിയ റിസൾട്ട് പ്രസിദ്ധീകരിച്ചു! 🔥"); }
+        prevScoreA = stats[TEAM_A].total; prevScoreB = stats[TEAM_B].total; prevTotalRes = sortedRes.length;
+
+        // View 1 Update
+        document.getElementById('stat-programs').innerText = state.programs.length;
         document.getElementById('stat-candidates').innerText = state.candidates.length;
         document.getElementById('stat-results').innerText = state.results.length;
-
-        let resHtml = sortedRes.length === 0 ? "<h2 style='color:#fca5a5; grid-column:span 2; text-align:center; font-size:4vh; padding-top: 10vh;'>ഫലങ്ങൾ വന്നിട്ടില്ല...</h2>" : "";
         
-        for(let r=0; r<Math.min(sortedRes.length, 6); r++) {
-            let lRes = sortedRes[r]; let lProg = getProg(lRes.progId); 
-            let pName = lProg ? lProg.name : '-'; 
-            let isNew = r === 0 ? " newest" : ""; let rib = isNew ? "<div class='corner-ribbon'></div>" : "";
-            
-            resHtml += `<div class='res-card${isNew}'>${rib}
-                <div class='rc-title'>
-                    <div class='rc-title-text'><span>${pName}</span></div> 
-                    <span class='rc-cat'>${lProg ? lProg.cat : ''}</span>
-                </div>`;
-                
-            if(getCandString(lRes.first) !== '-') resHtml += `<div class='rc-row first'><span class='rc-name'>🥇 ${getCandString(lRes.first)}</span><span class='rc-chest'>${getChestString(lRes.first)}</span></div>`;
-            if(getCandString(lRes.second) !== '-') resHtml += `<div class='rc-row second'><span class='rc-name'>🥈 ${getCandString(lRes.second)}</span><span class='rc-chest'>${getChestString(lRes.second)}</span></div>`;
-            if(getCandString(lRes.third) !== '-') resHtml += `<div class='rc-row third'><span class='rc-name'>🥉 ${getCandString(lRes.third)}</span><span class='rc-chest'>${getChestString(lRes.third)}</span></div>`;
-            resHtml += `</div>`;
+        document.getElementById('name-teamA-1').innerText = TEAM_A; 
+        document.getElementById('name-teamB-1').innerText = TEAM_B;
+        document.getElementById('score-teamA').innerText = stats[TEAM_A].total; 
+        document.getElementById('score-teamB').innerText = stats[TEAM_B].total;
+
+        // View 3 Update (Category Details)
+        document.querySelectorAll('.name-teamA-short').forEach(el => el.innerText = "KHAIBAR");
+        document.querySelectorAll('.name-teamB-short').forEach(el => el.innerText = "KHANDAQ");
+
+        CATEGORY_ORDER.forEach((cat, idx) => {
+            var elA = document.getElementById('cat-' + idx + '-a');
+            var elB = document.getElementById('cat-' + idx + '-b');
+            if(elA) elA.innerText = stats[TEAM_A][cat];
+            if(elB) elB.innerText = stats[TEAM_B][cat];
+        });
+
+        // View 2 Update (Latest Results)
+        var resHtml = sortedRes.length === 0 ? "<h2 style='color:#64748b; grid-column:span 2; text-align:center;'>ഫലങ്ങൾ വന്നിട്ടില്ല...</h2>" : "";
+        for(var r=0; r<Math.min(sortedRes.length, 6); r++) {
+            var lRes = sortedRes[r]; var lProg = getProg(lRes.progId);
+            var pName = lProg ? (lProg.progNo ? `<span style='color:#fbbf24; margin-right:5px;'>#${lProg.progNo}</span>${lProg.name}` : lProg.name) : '-';
+            var isNew = r === 0 ? " newest" : "";
+            var rib = isNew ? "<div class='corner-ribbon'></div>" : "";
+
+            resHtml += "<div class='res-card" + isNew + "'>" + rib + "<div class='rc-title'><div class='rc-title-text'><span>" + pName + "</span></div> <span class='rc-cat'>" + (lProg ? lProg.cat : '') + "</span></div>";
+            if(getCandNamesString(lRes.first) !== '-') resHtml += "<div class='rc-row first'><span class='rc-name'>🥇 " + getCandNamesString(lRes.first) + "</span><span class='rc-team " + (getTeamNamesString(lRes.first)==='KHAIBAR'?'a':'b') + "'>" + getTeamNamesString(lRes.first) + "</span></div>";
+            if(getCandNamesString(lRes.second) !== '-') resHtml += "<div class='rc-row second'><span class='rc-name'>🥈 " + getCandNamesString(lRes.second) + "</span><span class='rc-team " + (getTeamNamesString(lRes.second)==='KHAIBAR'?'a':'b') + "'>" + getTeamNamesString(lRes.second) + "</span></div>";
+            if(getCandNamesString(lRes.third) !== '-') resHtml += "<div class='rc-row third'><span class='rc-name'>🥉 " + getCandNamesString(lRes.third) + "</span><span class='rc-team " + (getTeamNamesString(lRes.third)==='KHAIBAR'?'a':'b') + "'>" + getTeamNamesString(lRes.third) + "</span></div>";
+            resHtml += "</div>";
         }
         document.getElementById('results-grid-container').innerHTML = resHtml;
 
-        document.getElementById('ts-subjunior').innerHTML = generateTopScorerHTML(getTopScorers('Sub Junior'));
-        document.getElementById('ts-junior').innerHTML = generateTopScorerHTML(getTopScorers('Junior'));
-        document.getElementById('ts-senior').innerHTML = generateTopScorerHTML(getTopScorers('Senior'));
-        document.getElementById('ts-supersenior').innerHTML = generateTopScorerHTML(getTopScorers('Super Senior'));
+        // --- DYNAMIC TABLES GENERATION ---
+        var container = document.getElementById('dynamic-views-container');
+        container.innerHTML = '';
+        
+        // Sort programs by category order, then by number
+        var sortedProgs = state.programs.slice().sort((a,b) => {
+            var catA = CATEGORY_ORDER.indexOf(a.cat);
+            var catB = CATEGORY_ORDER.indexOf(b.cat);
+            if(catA !== catB) return catA - catB;
+            var nA = parseInt(a.progNo) || 0;
+            var nB = parseInt(b.progNo) || 0;
+            return nA - nB;
+        });
+
+        var chunks = [];
+        var chunkSize = 8; // Number of table rows that comfortably fit a 1080p TV
+        for(let i=0; i<sortedProgs.length; i+=chunkSize) {
+            chunks.push(sortedProgs.slice(i, i+chunkSize));
+        }
+
+        maxViews = 3 + chunks.length; // Base views (3) + number of table views
+
+        chunks.forEach((chunk, index) => {
+            var viewId = 4 + index;
+            var tbody = "";
+            
+            chunk.forEach(tProg => {
+                var pName = tProg.progNo ? `<span style='color:#fbbf24; margin-right:5px;'>#${tProg.progNo}</span>${tProg.name}` : tProg.name;
+                var tTag = `<span class='s-tag s-gen'>${tProg.cat}</span>`;
+
+                var tRes = state.results.find(r => r.progId === tProg.id);
+                var a1=0, a2=0, a3=0, b1=0, b2=0, b3=0;
+                
+                if (tRes) {
+                    var tF = tRes.pts1 || 5; var tS = tRes.pts2 || 3; var tT = tRes.pts3 || 1;
+                    var checkPts = function(ids, pts) {
+                        var arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
+                        for(var k=0; k<arr.length; k++) {
+                            var cand = getCand(arr[k]);
+                            if(cand) {
+                                if(cand.team === TEAM_A) { if(pts === tF) a1 += pts; else if(pts === tS) a2 += pts; else if(pts === tT) a3 += pts; }
+                                else if(cand.team === TEAM_B) { if(pts === tF) b1 += pts; else if(pts === tS) b2 += pts; else if(pts === tT) b3 += pts; }
+                            }
+                        }
+                    };
+                    checkPts(tRes.first, tF); checkPts(tRes.second, tS); checkPts(tRes.third, tT);
+                }
+
+                // Format points for table
+                var vA1 = a1 > 0 ? a1 : "-"; var sA1 = a1 > 0 ? "color:#fbbf24; font-size:120%;" : "color:#334155;";
+                var vA2 = a2 > 0 ? a2 : "-"; var sA2 = a2 > 0 ? "color:#cbd5e1; font-size:110%;" : "color:#334155;";
+                var vA3 = a3 > 0 ? a3 : "-"; var sA3 = a3 > 0 ? "color:#d97706; font-size:110%;" : "color:#334155;";
+                
+                var vB1 = b1 > 0 ? b1 : "-"; var sB1 = b1 > 0 ? "color:#fbbf24; font-size:120%;" : "color:#334155;";
+                var vB2 = b2 > 0 ? b2 : "-"; var sB2 = b2 > 0 ? "color:#cbd5e1; font-size:110%;" : "color:#334155;";
+                var vB3 = b3 > 0 ? b3 : "-"; var sB3 = b3 > 0 ? "color:#d97706; font-size:110%;" : "color:#334155;";
+
+                tbody += `<tr>
+                    <td class='t-left'><div class='prog-name-wrapper'><div class='p-name-txt'>${pName}</div>${tTag}</div></td>
+                    <td style='${sA1}'>${vA1}</td><td style='${sA2}'>${vA2}</td><td style='${sA3}'>${vA3}</td>
+                    <td class='br-left' style='${sB1}'>${vB1}</td><td style='${sB2}'>${vB2}</td><td style='${sB3}'>${vB3}</td>
+                </tr>`;
+            });
+
+            var viewHtml = `
+            <div id="view-${viewId}" class="view-container ${currentViewIndex === viewId ? 'view-active' : ''}">
+                <div class="header"><img src="1000741398.jpg" class="fest-logo-img" onerror="this.style.display='none'"></div>
+                <div class="page-title">പോയിന്റ് ടേബിൾ (SCORE BOARD) - PAGE ${index + 1}/${chunks.length}</div>
+                <div class="table-container">
+                    <table class="pt-header-table"><colgroup><col style="width:28%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"></colgroup>
+                        <thead><tr><th rowspan="2" class="t-left">മത്സരം (Program)</th><th colspan="3" class="pt-team-a">KHAIBAR WARRIORS</th><th colspan="3" class="pt-team-b br-left">KHANDAQ FIGHTERS</th></tr><tr><th>🥇 1st</th><th>🥈 2nd</th><th>🥉 3rd</th><th class="br-left">🥇 1st</th><th>🥈 2nd</th><th>🥉 3rd</th></tr></thead>
+                    </table>
+                    <div class="no-scroll-wrapper"><table class="pt-table"><colgroup><col style="width:28%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"></colgroup><tbody>${tbody}</tbody></table></div>
+                </div>
+            </div>`;
+            container.insertAdjacentHTML('beforeend', viewHtml);
+        });
     }
 </script>
 </body>
 </html>
-
-
