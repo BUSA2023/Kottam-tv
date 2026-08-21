@@ -120,6 +120,10 @@
         .pt-team-b { color: #34d399 !important; font-size: 2.2vh !important; }
         .br-left { border-left: 0.2vh solid #334155; }
 
+        .gender-breakdown { font-size: 2vh; color: #cbd5e1; font-weight: bold; margin-top: 2vh; background: rgba(0,0,0,0.4); padding: 1vh 2vw; border-radius: 1.5vh; display: inline-block; border: 0.1vh solid rgba(255,255,255,0.1); }
+        .g-boys { color: #60a5fa; margin-right: 0.5vw;}
+        .g-girls { color: #f472b6; margin-left: 0.5vw;}
+
         /* TOAST */
         #toast { position: fixed; top: 4vh; right: 4vw; background: #10b981; color: white; padding: 2vh 3vw; border-radius: 2vh; font-size: 3vh; font-weight: bold; display: none; z-index: 10000; box-shadow: 0 10px 25px rgba(0,0,0,0.5);}
     </style>
@@ -145,9 +149,17 @@
         <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'"></div>
         <div class="page-title">ടീം പോയിന്റുകൾ (TOTAL SCORE)</div>
         <div class="dashboard-content">
-            <div class="team-block"><div class="team-name team-a" id="name-teamA-1">Team A</div><div class="huge-points num-font" id="score-teamA">0</div></div>
+            <div class="team-block">
+                <div class="team-name team-a" id="name-teamA-1">Team A</div>
+                <div class="huge-points num-font" id="score-teamA">0</div>
+                <div class="gender-breakdown"><span class="g-boys">BOYS: <span id="score-teamA-boys" class="num-font">0</span></span> | <span class="g-girls">GIRLS: <span id="score-teamA-girls" class="num-font">0</span></span></div>
+            </div>
             <div class="vs-circle">VS</div>
-            <div class="team-block"><div class="team-name team-b" id="name-teamB-1">Team B</div><div class="huge-points num-font" id="score-teamB">0</div></div>
+            <div class="team-block">
+                <div class="team-name team-b" id="name-teamB-1">Team B</div>
+                <div class="huge-points num-font" id="score-teamB">0</div>
+                <div class="gender-breakdown"><span class="g-boys">BOYS: <span id="score-teamB-boys" class="num-font">0</span></span> | <span class="g-girls">GIRLS: <span id="score-teamB-girls" class="num-font">0</span></span></div>
+            </div>
         </div>
         <div class="stats-row">
             <div class="stat-box"><div class="stat-value num-font" id="stat-programs">0</div><div class="stat-label">മത്സരങ്ങൾ</div></div>
@@ -166,34 +178,34 @@
     <!-- PAGE 3: CATEGORY SCORES -->
     <div id="view-3" class="view-container">
         <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'"></div>
-        <div class="page-title">വിഭാഗം തിരിച്ചുള്ള പോയിന്റുകൾ (CATEGORY SCORES)</div>
+        <div class="page-title">വിഭാഗം തിരിച്ചുള്ള പോയിന്റുകൾ - ആൺകുട്ടികൾ (BOYS CATEGORY SCORES)</div>
         <div class="category-grid">
             <!-- 6 Categories dynamically populated -->
-            <div class="cat-box"><div class="cat-title">Kiddies</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-0-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-0-b">0</span></div></div>
-            <div class="cat-box"><div class="cat-title">Sub Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-1-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-1-b">0</span></div></div>
-            <div class="cat-box"><div class="cat-title">Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-2-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-2-b">0</span></div></div>
-            <div class="cat-box"><div class="cat-title">Senior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-3-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-3-b">0</span></div></div>
-            <div class="cat-box"><div class="cat-title">Super Senior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-4-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-4-b">0</span></div></div>
-            <div class="cat-box"><div class="cat-title">General</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-5-a">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-5-b">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Kiddies</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-0-a-boys">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-0-b-boys">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Sub Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-1-a-boys">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-1-b-boys">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-2-a-boys">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-2-b-boys">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Senior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-3-a-boys">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-3-b-boys">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Super Senior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-4-a-boys">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-4-b-boys">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">General</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-5-a-boys">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-5-b-boys">0</span></div></div>
         </div>
     </div>
 
-    <!-- DYNAMIC TABLES CONTAINER (Pages 4, 5, 6...) -->
-    <div id="dynamic-views-container"></div>
-</div>
+    <!-- PAGE 4: CATEGORY SCORES GIRLS -->
+    <div id="view-4" class="view-container">
+        <div class="header"><img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'"></div>
+        <div class="page-title">വിഭാഗം തിരിച്ചുള്ള പോയിന്റുകൾ - പെൺകുട്ടികൾ (GIRLS CATEGORY SCORES)</div>
+        <div class="category-grid">
+            <!-- 6 Categories dynamically populated -->
+            <div class="cat-box"><div class="cat-title">Kiddies</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-0-a-girls">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-0-b-girls">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Sub Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-1-a-girls">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-1-b-girls">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Junior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-2-a-girls">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-2-b-girls">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Senior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-3-a-girls">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-3-b-girls">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">Super Senior</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-4-a-girls">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-4-b-girls">0</span></div></div>
+            <div class="cat-box"><div class="cat-title">General</div><div class="cat-team-row"><span class="cat-tname a name-teamA-short">Team A</span><span class="cat-pts num-font" id="cat-5-a-girls">0</span></div><div class="cat-team-row"><span class="cat-tname b name-teamB-short">Team B</span><span class="cat-pts num-font" id="cat-5-b-girls">0</span></div></div>
+        </div>
+    </div>
 
-<script>
-    var appStarted = false;
-    var wakeLockObj = null;
-
-    // Wake Lock to prevent TV from sleeping
-    async function preventSleep() {
-        if(!appStarted) return;
-        try {
-            if ('wakeLock' in navigator) { 
-                if(wakeLockObj) await wakeLockObj.release().catch(e=>{}); 
-                wakeLockObj = await navigator.wakeLock.request('screen');
-            }
+    <!-- DYNAMIC TABLES CONTAINER (Pages 5, 6, 7...) -->
         } catch(e) {}
         try { if (typeof tizen !== 'undefined' && tizen.power) tizen.power.request('SCREEN', 'SCREEN_NORMAL'); } catch(e) {}
     }
@@ -252,7 +264,7 @@
 
     // --- CAROUSEL LOGIC ---
     var currentViewIndex = 1;
-    var maxViews = 3; // dynamically updated when tables are generated
+    var maxViews = 4; // dynamically updated when tables are generated
 
     setInterval(function() {
         // Hide all views safely
@@ -330,8 +342,16 @@
         
         // Setup stats structure for all 6 categories
         var stats = {
-            [TEAM_A]: { total: 0, 'Kiddies': 0, 'Sub Junior': 0, 'Junior': 0, 'Senior': 0, 'Super Senior': 0, 'General': 0 },
-            [TEAM_B]: { total: 0, 'Kiddies': 0, 'Sub Junior': 0, 'Junior': 0, 'Senior': 0, 'Super Senior': 0, 'General': 0 }
+            [TEAM_A]: { 
+                total: 0, 
+                BOYS: { total: 0, 'Kiddies': 0, 'Sub Junior': 0, 'Junior': 0, 'Senior': 0, 'Super Senior': 0, 'General': 0 },
+                GIRLS: { total: 0, 'Kiddies': 0, 'Sub Junior': 0, 'Junior': 0, 'Senior': 0, 'Super Senior': 0, 'General': 0 }
+            },
+            [TEAM_B]: { 
+                total: 0, 
+                BOYS: { total: 0, 'Kiddies': 0, 'Sub Junior': 0, 'Junior': 0, 'Senior': 0, 'Super Senior': 0, 'General': 0 },
+                GIRLS: { total: 0, 'Kiddies': 0, 'Sub Junior': 0, 'Junior': 0, 'Senior': 0, 'Super Senior': 0, 'General': 0 }
+            }
         };
         
         // Calculate Points
@@ -341,20 +361,30 @@
             var cat = prog.cat || 'General';
             if(!CATEGORY_ORDER.includes(cat)) cat = 'General';
 
+            var isGrp = res.isGroup === true || (prog.name && (prog.name.toLowerCase().includes('group') || prog.name.toLowerCase().includes('burd') || prog.name.toLowerCase().includes('qawwa') || prog.name.toLowerCase().includes('mala') || prog.name.toLowerCase().includes('mash up') || prog.name.toLowerCase().includes('moulid') || prog.name.toLowerCase().includes('padappayatt') || prog.name.toLowerCase().includes('newspaper') || prog.name.toLowerCase().includes('collage')));
+            
+            var fPts = res.pts1 !== undefined ? res.pts1 : (isGrp ? 10 : 5);
+            var sPts = res.pts2 !== undefined ? res.pts2 : (isGrp ? 5 : 3);
+            var tPts = res.pts3 !== undefined ? res.pts3 : (isGrp ? 3 : 1);
+
             var addPts = (ids, pts) => {
                 var arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
                 arr.forEach(id => { 
                     var c = getCand(id); 
                     if (c && c.team && stats[c.team] !== undefined) { 
-                        stats[c.team].total += pts; 
-                        stats[c.team][cat] += pts; 
+                        var gender = c.gender ? c.gender.toUpperCase() : 'BOYS';
+                        if(stats[c.team][gender]) {
+                            stats[c.team].total += pts; 
+                            stats[c.team][gender].total += pts;
+                            stats[c.team][gender][cat] += pts; 
+                        }
                     } 
                 });
             };
 
-            addPts(res.first, res.pts1 || 5);
-            addPts(res.second, res.pts2 || 3);
-            addPts(res.third, res.pts3 || 1);
+            addPts(res.first, fPts);
+            addPts(res.second, sPts);
+            addPts(res.third, tPts);
         });
         
         var sortedRes = state.results.slice().sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
@@ -374,15 +404,25 @@
         document.getElementById('score-teamA').innerText = stats[TEAM_A].total; 
         document.getElementById('score-teamB').innerText = stats[TEAM_B].total;
 
-        // View 3 Update (Category Details)
+        document.getElementById('score-teamA-boys').innerText = stats[TEAM_A].BOYS.total;
+        document.getElementById('score-teamA-girls').innerText = stats[TEAM_A].GIRLS.total;
+        document.getElementById('score-teamB-boys').innerText = stats[TEAM_B].BOYS.total;
+        document.getElementById('score-teamB-girls').innerText = stats[TEAM_B].GIRLS.total;
+
+        // View 3 & 4 Update (Category Details)
         document.querySelectorAll('.name-teamA-short').forEach(el => el.innerText = "KHAIBAR");
         document.querySelectorAll('.name-teamB-short').forEach(el => el.innerText = "KHANDAQ");
 
         CATEGORY_ORDER.forEach((cat, idx) => {
-            var elA = document.getElementById('cat-' + idx + '-a');
-            var elB = document.getElementById('cat-' + idx + '-b');
-            if(elA) elA.innerText = stats[TEAM_A][cat];
-            if(elB) elB.innerText = stats[TEAM_B][cat];
+            var elABoys = document.getElementById('cat-' + idx + '-a-boys');
+            var elBBoys = document.getElementById('cat-' + idx + '-b-boys');
+            if(elABoys) elABoys.innerText = stats[TEAM_A].BOYS[cat];
+            if(elBBoys) elBBoys.innerText = stats[TEAM_B].BOYS[cat];
+
+            var elAGirls = document.getElementById('cat-' + idx + '-a-girls');
+            var elBGirls = document.getElementById('cat-' + idx + '-b-girls');
+            if(elAGirls) elAGirls.innerText = stats[TEAM_A].GIRLS[cat];
+            if(elBGirls) elBGirls.innerText = stats[TEAM_B].GIRLS[cat];
         });
 
         // View 2 Update (Latest Results)
@@ -421,10 +461,10 @@
             chunks.push(sortedProgs.slice(i, i+chunkSize));
         }
 
-        maxViews = 3 + chunks.length; // Base views (3) + number of table views
+        maxViews = 4 + chunks.length; // Base views (4) + number of table views
 
         chunks.forEach((chunk, index) => {
-            var viewId = 4 + index;
+            var viewId = 5 + index;
             var tbody = "";
             
             chunk.forEach(tProg => {
@@ -435,7 +475,11 @@
                 var a1=0, a2=0, a3=0, b1=0, b2=0, b3=0;
                 
                 if (tRes) {
-                    var tF = tRes.pts1 || 5; var tS = tRes.pts2 || 3; var tT = tRes.pts3 || 1;
+                    var isGrp = tRes.isGroup === true || (tProg.name && (tProg.name.toLowerCase().includes('group') || tProg.name.toLowerCase().includes('burd') || tProg.name.toLowerCase().includes('qawwa') || tProg.name.toLowerCase().includes('mala') || tProg.name.toLowerCase().includes('mash up') || tProg.name.toLowerCase().includes('moulid') || tProg.name.toLowerCase().includes('padappayatt') || tProg.name.toLowerCase().includes('newspaper') || tProg.name.toLowerCase().includes('collage')));
+                    var tF = tRes.pts1 !== undefined ? tRes.pts1 : (isGrp ? 10 : 5); 
+                    var tS = tRes.pts2 !== undefined ? tRes.pts2 : (isGrp ? 5 : 3); 
+                    var tT = tRes.pts3 !== undefined ? tRes.pts3 : (isGrp ? 3 : 1);
+                    
                     var checkPts = function(ids, pts) {
                         var arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
                         for(var k=0; k<arr.length; k++) {
