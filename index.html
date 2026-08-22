@@ -3,224 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ലദൽ മദീന 2K26 - Live TV Display</title>
+    <title>മെഹ്ഫിലെ നൂർ 2026 - Result Display</title>
     
-    <!-- Premium Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;700;800&family=Outfit:wght@400;800;900&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;700;800&family=Outfit:wght@400;800;900&family=Baloo+Chettan+2:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <style>
-        /* ========================================================
-           ULTRA-LITE TV OPTIMIZED CSS (STATIC BACKGROUND, HIGH VISIBILITY)
-           ======================================================== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
             font-family: 'Anek Malayalam', sans-serif; 
-            background: #020617; /* Solid dark color is much better for TV RAM */
-            color: #ffffff; 
-            overflow: hidden; 
-            height: 100vh; width: 100vw;
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+            color: #ffffff; overflow: hidden; height: 100vh; width: 100vw;
         }
         .num-font { font-family: 'Outfit', sans-serif; }
+        
+        .zero-gravity-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; overflow: hidden; pointer-events: none;
+        }
+        .orb {
+            position: absolute; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            animation: floatOrb infinite linear; opacity: 0;
+        }
+        @keyframes floatOrb {
+            0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-20vh) scale(1.5); opacity: 0; }
+        }
 
-        /* OVERLAYS */
         #start-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #000000; z-index: 9999;
-            display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 9999;
+            display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; 
+            -webkit-justify-content: center; justify-content: center; flex-direction: column; cursor: pointer;
         }
-        .start-btn { background: #fbbf24; color: #000; padding: 3vh 4vw; font-size: 4vh; font-weight: bold; border-radius: 2vh; border: none; cursor: pointer; text-transform: uppercase; transition: 0.3s;}
-        
-        /* MAIN VIEW CONTAINER - Simplified Fade */
+        .start-btn { background: #ec4899; color: white; padding: 20px 40px; font-size: 24px; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 20px rgba(236,72,153,0.5); transition: 0.3s;}
+        .start-btn:hover { transform: scale(1.05); }
+
+        #flash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9998; opacity: 0; pointer-events: none; }
+
         .view-container {
-            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-            display: none; flex-direction: column;
-            padding: 3vh 4vw; 
-            animation: simpleFade 0.8s ease-in-out; 
-            overflow: hidden;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; padding: 15px 30px; -webkit-flex-direction: column; flex-direction: column;
+            animation: fadeIn 1s ease-in-out; overflow: hidden;
         }
-        .view-active { display: flex; }
-        @keyframes simpleFade { from { opacity: 0; } to { opacity: 1; } }
+        .view-active { display: -webkit-flex; display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* HEADER & TITLE */
-        .header { text-align: center; margin-bottom: 2vh; height: 10vh; display: flex; align-items: center; justify-content: center; }
-        .fest-logo-img { height: 9vh; max-height: 80px; object-fit: contain; }
+        .header { text-align: center; margin-bottom: 10px; }
+        .page-title { text-align: center; font-size: clamp(14px, 2vw, 18px); color: #fbbf24; margin-bottom: 10px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 10px; text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-left: auto; margin-right: auto;}
+
+        /* SCORE VIEW */
+        .dashboard-content { display: flex; justify-content: space-around; align-items: center; flex: 1; padding: 0 50px; }
+        .team-block { text-align: center; width: 40%; background: rgba(15, 23, 42, 0.6); padding: 30px; border-radius: 30px; border: 2px solid rgba(255,255,255,0.05); box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative;}
+        .team-name { font-size: clamp(24px, 4vw, 45px); font-weight: bold; margin-bottom: 5px; }
+        .team-name.team-a { color: #fb7185; text-shadow: 0 0 20px rgba(251, 113, 133, 0.4); }
+        .team-name.team-b { color: #818cf8; text-shadow: 0 0 20px rgba(129, 140, 248, 0.4); }
+        .huge-points { font-size: clamp(60px, 13vw, 180px); font-weight: 900; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .gender-split { display: flex; justify-content: space-around; margin-top: 15px; background: rgba(0,0,0,0.3); border-radius: 15px; padding: 10px; }
+        .g-stat { display: flex; flex-direction: column; align-items: center; }
+        .g-lbl { font-size: 12px; color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .g-pts { font-size: 24px; font-weight: 900; color: #e2e8f0; }
+
+        .vs-circle { background: #0f172a; border: 5px solid #1e293b; border-radius: 50%; width: clamp(50px, 8vw, 80px); height: clamp(50px, 8vw, 80px); display: flex; align-items: center; justify-content: center; font-size: clamp(16px, 3vw, 24px); font-weight: 900; color: #64748b; font-style: italic; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        .stats-row { display: flex; justify-content: center; gap: clamp(10px, 2vw, 30px); margin-top: 20px; padding-bottom: 10px; }
+        .stat-box { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: clamp(10px, 2vw, 15px) clamp(15px, 3vw, 30px); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); min-width: clamp(120px, 15vw, 180px); }
+        .stat-value { font-size: clamp(24px, 4vw, 35px); font-weight: 900; color: #34d399; line-height: 1.2; text-shadow: 0 0 10px rgba(52,211,153,0.3);}
+        .stat-label { font-size: clamp(10px, 1.5vw, 14px); color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;}
+
+        /* LATEST RESULTS VIEW */
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; flex: 1; align-content: start; overflow-y: auto; padding-right:10px; }
+        .results-grid::-webkit-scrollbar { display: none; }
+        .res-card { background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; position: relative; }
+        .res-card.newest { grid-column: 1 / -1; border-color: #10b981; box-shadow: 0 0 25px rgba(16,185,129,0.3); background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(15,23,42,0.95) 100%); padding: 20px; display: flex; flex-direction: column; justify-content: center; }
+        .res-card.newest .rc-title { font-size: clamp(20px, 3vw, 28px); border-bottom: 2px solid rgba(16,185,129,0.3); padding-bottom: 10px; margin-bottom: 12px; padding-right: 120px; }
+        .res-card.newest .rc-cat { font-size: 16px; padding: 4px 10px; background: #064e3b; color: #34d399; }
+        .res-card.newest .rc-row { padding: 10px 18px; margin-bottom: 8px; }
+        .res-card.newest .rc-name { font-size: clamp(18px, 2.5vw, 24px); }
+        .res-card.newest .rc-team { font-size: 15px; padding: 5px 10px; }
+        .corner-ribbon { width: 140px; height: 140px; overflow: hidden; position: absolute; top: 0; right: 0; z-index: 10; border-radius: 0 15px 0 0; pointer-events: none; }
+        .corner-ribbon::before { content: '✨ LATEST'; position: absolute; display: block; width: 220px; padding: 10px 0; background: linear-gradient(90deg, #fbbf24, #f59e0b); box-shadow: 0 5px 15px rgba(0,0,0,0.5); color: #78350f; font-weight: 900; font-size: 13px; text-align: center; right: -55px; top: 32px; transform: rotate(45deg); letter-spacing: 3px; }
         
-        .page-title { 
-            text-align: center; font-size: 3vh; color: #fbbf24; margin-bottom: 2vh; 
-            font-weight: bold; background: rgba(255,255,255,0.05); padding: 1vh; 
-            border-radius: 2vh; text-transform: uppercase; letter-spacing: 0.2vw;
-            flex-shrink: 0;
-        }
-
-        /* --- PAGE 1: TOTAL SCORE --- */
-        .dashboard-content { display: flex; justify-content: space-around; align-items: center; flex: 1; padding: 0 4vw; min-height: 0; }
-        .team-block { text-align: center; width: 42%; background: rgba(255,255,255,0.05); padding: 3vh; border-radius: 4vh; border: 0.2vh solid rgba(255,255,255,0.1); }
-        .team-name { font-size: 5vh; font-weight: bold; margin-bottom: 1vh; }
-        .team-name.team-a { color: #fbbf24; }
-        .team-name.team-b { color: #a855f7; }
-        .huge-points { font-size: 20vh; font-weight: 900; line-height: 1; }
-        
-        .gender-split { display: flex; justify-content: space-around; margin-top: 2vh; background: rgba(0,0,0,0.4); padding: 1.5vh; border-radius: 2vh; }
-        .g-stat { display: flex; flex-direction: column; }
-        .g-label { font-size: 1.8vh; color: #94a3b8; font-weight: bold; }
-        .g-pts { font-size: 4vh; font-weight: bold; }
-        .g-pts.boys { color: #60a5fa; } .g-pts.girls { color: #f472b6; }
-
-        .vs-circle { background: #0f172a; border: 0.4vh solid #1e293b; border-radius: 50%; width: 10vh; height: 10vh; display: flex; align-items: center; justify-content: center; font-size: 3vh; font-weight: 900; color: #64748b; font-style: italic; }
-
-        .stats-row { display: flex; justify-content: center; gap: 3vw; margin-top: 2vh; flex-shrink: 0; height: 12vh; }
-        .stat-box { background: rgba(255,255,255,0.05); border: 0.2vh solid rgba(255,255,255,0.1); border-radius: 2vh; padding: 1.5vh 3vw; text-align: center; flex: 1; max-width: 20vw; display: flex; flex-direction: column; justify-content: center;}
-        .stat-value { font-size: 4.5vh; font-weight: 900; color: #34d399; line-height: 1.1; }
-        .stat-label { font-size: 1.6vh; color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1vw; margin-top: 0.5vh;}
-
-        /* --- PAGE 2: LATEST RESULTS --- */
-        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2vh; flex: 1; min-height: 0; overflow: hidden; padding: 0.5vh; }
-        .res-card { background: rgba(255,255,255,0.05); border: 0.2vh solid rgba(255,255,255,0.1); border-radius: 2vh; padding: 2vh; display: flex; flex-direction: column; justify-content: center; }
-        .res-card.newest { grid-column: span 2; border-color: #10b981; background: rgba(16,185,129,0.1); padding: 2.5vh; position: relative; }
-        
-        .corner-ribbon { width: 12vh; height: 12vh; overflow: hidden; position: absolute; top: 0; right: 0; z-index: 10; border-radius: 0 2vh 0 0; }
-        .corner-ribbon::before { content: 'LATEST'; position: absolute; display: block; width: 18vh; padding: 0.8vh 0; background: #f59e0b; color: #000; font-weight: 900; font-size: 1.4vh; text-align: center; right: -4vh; top: 2.5vh; transform: rotate(45deg); }
-
-        .rc-title { font-weight: bold; color: #fff; border-bottom: 0.1vh solid rgba(255,255,255,0.1); padding-bottom: 1vh; margin-bottom: 1vh; display: flex; justify-content: space-between; align-items: center;}
+        .rc-title { font-size: clamp(16px, 2vw, 20px); font-weight: bold; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
         .rc-title-text { display: flex; flex-direction: column; }
-        .rc-title-text span { font-size: 2.5vh; }
-        .rc-cat { font-size: 1.4vh; background: #1e293b; padding: 0.5vh 1vw; border-radius: 1vh; color: #94a3b8; font-weight: bold; text-transform: uppercase;}
+        .rc-title-eng { font-size: 12px; color: #94a3b8; font-weight: normal; margin-top: 2px; }
+        .rc-cat { font-size: 11px; background: #1e293b; padding: 4px 8px; border-radius: 6px; color: #94a3b8; font-weight: bold; text-transform: uppercase;}
         
-        .rc-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 1vh 1.5vw; border-radius: 1vh; margin-bottom: 0.8vh; }
-        .rc-name { font-size: 2.2vh; font-weight: bold; color: #f1f5f9; }
-        .rc-team { font-size: 1.4vh; font-weight: bold; padding: 0.5vh 1vw; border-radius: 0.8vh; background: rgba(255,255,255,0.1); }
-        .rc-team.a { color: #fbbf24; } .rc-team.b { color: #a855f7; }
+        .rc-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; }
+        .rc-row.first { border-left: 5px solid #fbbf24; }
+        .rc-row.second { border-left: 5px solid #cbd5e1; }
+        .rc-row.third { border-left: 5px solid #b45309; }
+        .rc-name { font-size: clamp(14px, 2vw, 18px); font-weight: bold; color: #f1f5f9; }
+        .rc-team { font-size: 12px; font-weight: bold; padding: 3px 6px; border-radius: 4px; background: rgba(255,255,255,0.1); }
+        .rc-team.a { color: #fb7185; } .rc-team.b { color: #818cf8; }
 
-        /* --- CATEGORY SCORES --- */
-        .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw; flex: 1; align-items: center; min-height: 0;}
-        .cat-box { background: rgba(255,255,255,0.05); border: 0.1vh solid rgba(255,255,255,0.1); border-radius: 2vh; padding: 3vh 2vw; text-align: center; }
-        .cat-title { font-size: 3vh; font-weight: bold; color: #fbbf24; margin-bottom: 3vh; text-transform: uppercase; border-bottom: 0.2vh solid rgba(255,255,255,0.1); padding-bottom: 1vh;}
-        .cat-team-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5vh; background: rgba(0,0,0,0.5); padding: 1.5vh 2vw; border-radius: 1.5vh; }
-        .cat-tname { font-size: 2.5vh; font-weight: bold; }
-        .cat-tname.a { color: #fbbf24; } .cat-tname.b { color: #a855f7; }
-        .cat-pts { font-size: 4vh; font-weight: 900; color: #fff; }
+        /* TOP SCORERS / KALAPRATHIBA VIEW */
+        .ts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; flex: 1; align-content: start; padding: 10px; overflow-y: auto;}
+        .ts-grid::-webkit-scrollbar { display: none; }
+        .ts-card { background: rgba(15,23,42,0.8); border: 2px solid rgba(251,191,36,0.3); border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .ts-header { background: linear-gradient(90deg, #78350f, #92400e); padding: 15px; text-align: center; font-size: 20px; font-weight: 900; color: #fbbf24; text-transform: uppercase; letter-spacing: 2px; }
+        .ts-body { display: flex; flex-direction: column; padding: 0; }
+        .ts-row { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .ts-row:last-child { border-bottom: none; }
+        .ts-icon { font-size: 35px; width: 60px; text-align: center; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        .ts-info { flex: 1; display: flex; flex-direction: column; padding-left: 10px; }
+        .ts-award { font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .ts-name { font-size: 18px; font-weight: bold; color: #fff; margin-top: 2px; }
+        .ts-team { font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 5px; width: fit-content; background: rgba(255,255,255,0.1); }
+        .ts-team.a { color: #fb7185; } .ts-team.b { color: #818cf8; }
+        .ts-pts { font-size: 35px; font-weight: 900; color: #34d399; padding-left: 15px; text-align: right; }
+        
+        .ts-tba { text-align: center; color: #64748b; font-style: italic; font-size: 14px; padding: 20px; width: 100%; }
 
-        /* --- POINT TABLES --- */
-        .table-container { background: rgba(255,255,255,0.05); border-radius: 2vh; padding: 1vh; border: 0.1vh solid rgba(255,255,255,0.1); flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .pt-header-table { width: 100%; border-collapse: collapse; background: #000; border-radius: 1vh 1vh 0 0; flex-shrink: 0; table-layout: fixed; }
-        .no-scroll-wrapper { flex: 1; background: rgba(0,0,0,0.3); border-radius: 0 0 1vh 1vh; overflow: hidden; display: flex; flex-direction: column; }
-        .pt-table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
-        .pt-table tbody tr { height: 1%; } 
-        th, td { text-align: center; border-bottom: 0.1vh solid rgba(255,255,255,0.05); }
-        .pt-header-table th { color: #94a3b8; text-transform: uppercase; font-size: 1.8vh; border-bottom: 0.2vh solid #334155; padding: 1vh;}
-        .pt-table td { padding: 0.2vh 1vw; font-size: 2.2vh; font-weight: bold; }
-        .t-left { text-align: left !important; padding-left: 2vw !important; vertical-align: middle;}
-        
-        .prog-name-wrapper { display: flex; align-items: center; justify-content: flex-start; width: 100%; }
-        .p-name-txt { font-size: 2.2vh; font-weight: bold; display: flex; flex-direction: column; line-height: 1.1; color: #f1f5f9; }
-        
-        .s-tag { font-size: 1.2vh; background: #334155; padding: 0.4vh 0.6vw; border-radius: 0.5vh; color: #cbd5e1; margin-left: 1vw; font-weight: bold; text-transform: uppercase; flex-shrink: 0;}
+        /* TABLES */
+        .table-container { background: rgba(15, 23, 42, 0.8); border-radius: 15px; padding: 10px; border: 1px solid rgba(255,255,255,0.1); flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;}
+        .no-scroll-wrapper { flex: 1; background: rgba(0,0,0,0.4); border-radius: 10px; overflow: hidden; position: relative; }
+        .pt-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        .pt-table thead { position: sticky; top: 0; z-index: 20; }
+        .pt-table thead th { background: rgba(2, 6, 23, 0.98); border-bottom: 2px solid #334155; padding: 12px 6px; }
+        .pt-table th, .pt-table td { padding: 10px 6px; text-align: center; font-size: 16px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .pt-table th { color: #94a3b8; text-transform: uppercase; font-size: 13px; }
+        .t-left { text-align: left !important; padding-left: 20px !important; vertical-align: middle;}
+        .prog-name-wrapper { display: flex; align-items: center; justify-content: flex-start; white-space: nowrap; overflow: hidden; width: 100%; }
+        .p-name-txt { font-size: 16px; font-weight: bold; display: flex; flex-direction: column; line-height: 1.2; color: #f1f5f9; }
+        .p-name-eng { font-size: 10px; color: #94a3b8; font-weight: normal; margin-top: 2px; }
+        .s-tag { font-size: 9px; background: #334155; padding: 3px 5px; border-radius: 4px; color: #cbd5e1; margin-left: 8px; font-weight: bold; vertical-align: middle; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; letter-spacing: 0.5px;}
         .s-grp { background: #78350f; color: #fcd34d; }
-        .s-cat { background: #064e3b; color: #34d399; }
-        
-        .pt-team-a { color: #fbbf24; font-size: 2.2vh !important; } 
-        .pt-team-b { color: #a855f7; font-size: 2.2vh !important; }
-        .br-left { border-left: 0.2vh solid #334155; }
+        .pt-team-a { color: #fb7185; font-size: 18px !important; } 
+        .pt-team-b { color: #818cf8; font-size: 18px !important; }
+        .br-left { border-left: 2px solid #334155; }
 
-        /* TOAST */
-        #toast { position: fixed; top: 4vh; right: 4vw; background: #10b981; color: white; padding: 2vh 3vw; border-radius: 2vh; font-size: 3vh; font-weight: bold; display: none; z-index: 10000; box-shadow: 0 10px 25px rgba(0,0,0,0.5);}
+        #toast { position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 15px 30px; border-radius: 10px; font-size: 20px; font-weight: bold; transform: translateY(-150px); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.2); }
+        #toast.show { transform: translateY(0); }
     </style>
 </head>
 <body>
 
-    <!-- AUDIO FILES (Corrected to your requested exact filenames) -->
+    <!-- AUDIO FILES -->
     <audio id="sound-score" src="mixkit-sci-fi-reject-notification-896.wav" preload="auto"></audio>
     <audio id="sound-result" src="mixkit-sci-fi-reject-notification-896.wav" preload="auto"></audio>
 
-    <!-- START SCREEN -->
+    <div class="zero-gravity-bg" id="zg-bg"></div>
+    <div id="flash-screen"></div>
+
     <div id="start-overlay" onclick="startApp()">
-        <button class="start-btn">Start Live TV Display</button>
-        <p style="margin-top:2vh; font-size:2vh; color:#94a3b8; font-weight:bold;">Optimized for Android TV</p>
+        <button class="start-btn">Start Live Result Display</button>
+        <p style="margin-top:20px; font-size:16px; color:#94a3b8; text-align:center;">Click to enter Full Screen & Enable Audio</p>
     </div>
 
     <div id="toast">പുതിയ അപ്ഡേറ്റ്!</div>
 
     <div id="app" style="display:none; width: 100%; height: 100%; position: relative;">
-        
-        <!-- VIEW 1: TOTAL SCORE DASHBOARD -->
-        <div id="view-1" class="view-container view-active">
-            <div class="header">
-                <img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'">
-            </div>
-            <div class="page-title">ടീം പോയിന്റുകൾ (TOTAL SCORE)</div>
-            <div class="dashboard-content">
-                <!-- Team A -->
-                <div class="team-block">
-                    <div class="team-name team-a">KHAIBAR WARRIORS</div>
-                    <div class="huge-points num-font" id="score-teamA">0</div>
-                    <div class="gender-split">
-                        <div class="g-stat"><span class="g-label">BOYS</span><span class="g-pts boys num-font" id="score-teamA-boys">0</span></div>
-                        <div class="g-stat"><span class="g-label">GIRLS</span><span class="g-pts girls num-font" id="score-teamA-girls">0</span></div>
-                    </div>
-                </div>
-                <div class="vs-circle">VS</div>
-                <!-- Team B -->
-                <div class="team-block">
-                    <div class="team-name team-b">KHANDAQ FIGHTERS</div>
-                    <div class="huge-points num-font" id="score-teamB">0</div>
-                    <div class="gender-split">
-                        <div class="g-stat"><span class="g-label">BOYS</span><span class="g-pts boys num-font" id="score-teamB-boys">0</span></div>
-                        <div class="g-stat"><span class="g-label">GIRLS</span><span class="g-pts girls num-font" id="score-teamB-girls">0</span></div>
-                    </div>
-                </div>
-            </div>
-            <div class="stats-row">
-                <div class="stat-box"><div class="stat-value num-font" id="stat-programs">0</div><div class="stat-label">മത്സരങ്ങൾ</div></div>
-                <div class="stat-box"><div class="stat-value num-font" id="stat-candidates">0</div><div class="stat-label">കുട്ടികൾ</div></div>
-                <div class="stat-box"><div class="stat-value num-font" id="stat-results">0</div><div class="stat-label">റിസൾട്ടുകൾ</div></div>
-            </div>
-        </div>
-
-        <!-- VIEW 2: LATEST RESULTS -->
-        <div id="view-2" class="view-container">
-            <div class="header">
-                <img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'">
-            </div>
-            <div class="page-title">ഏറ്റവും പുതിയ ഫലങ്ങൾ (LATEST RESULTS)</div>
-            <div class="results-grid" id="results-grid-container">
-                <!-- Injected by JS -->
-            </div>
-        </div>
-
-        <!-- VIEW 3: BOYS CATEGORY SCORES -->
-        <div id="view-3" class="view-container">
-            <div class="header">
-                <img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'">
-            </div>
-            <div class="page-title">BOYS CATEGORY SCORES (ആൺകുട്ടികൾ)</div>
-            <div class="category-grid" id="boys-categories-grid">
-                <!-- Injected by JS -->
-            </div>
-        </div>
-
-        <!-- VIEW 4: GIRLS CATEGORY SCORES -->
-        <div id="view-4" class="view-container">
-            <div class="header">
-                <img src="1000741398.jpg" class="fest-logo-img" alt="Ladal Madeena" onerror="this.style.display='none'">
-            </div>
-            <div class="page-title">GIRLS CATEGORY SCORES (പെൺകുട്ടികൾ)</div>
-            <div class="category-grid" id="girls-categories-grid">
-                <!-- Injected by JS -->
-            </div>
-        </div>
-
-        <!-- DYNAMIC VIEWS CONTAINER FOR PROGRAM TABLES -->
-        <div id="dynamic-tables"></div>
-
+        <!-- DYNAMIC VIEWS WILL BE INJECTED HERE -->
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
+        var appStarted = false;
+        var slideTimer = null;
 
-        // FIREBASE CONFIG (Syncing to Admin Database)
-        const firebaseConfig = {
+        function createZeroGravity() {
+            var bg = document.getElementById('zg-bg');
+            var colors = ['#ec4899', '#8b5cf6', '#fbbf24', '#34d399', '#fb7185'];
+            for(var i=0; i<25; i++) {
+                var orb = document.createElement('div');
+                orb.className = 'orb';
+                var size = Math.random() * 80 + 30;
+                orb.style.width = size + 'px';
+                orb.style.height = size + 'px';
+                orb.style.left = Math.random() * 100 + 'vw';
+                var color = colors[Math.floor(Math.random() * colors.length)];
+                orb.style.background = 'radial-gradient(circle, ' + color + '22 0%, transparent 70%)';
+                orb.style.animationDuration = (Math.random() * 15 + 15) + 's';
+                orb.style.animationDelay = (Math.random() * 15) + 's';
+                bg.appendChild(orb);
+            }
+        }
+        createZeroGravity();
+        
+        function preventSleep() {
+            try {
+                if ('wakeLock' in navigator && typeof navigator.wakeLock.request === 'function') { navigator.wakeLock.request('screen').catch(function(){}); }
+                var canvas = document.createElement('canvas'); canvas.width = 1; canvas.height = 1;
+                var ctx = canvas.getContext('2d'); ctx.fillStyle = '#000'; ctx.fillRect(0,0,1,1);
+                var stream = canvas.captureStream(1);
+                var video = document.createElement('video'); video.srcObject = stream;
+                video.setAttribute('playsinline', ''); video.setAttribute('muted', ''); video.muted = true;
+                video.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none;';
+                document.body.appendChild(video); video.play().catch(function(){});
+            } catch(e) {}
+        }
+
+        function toggleFullScreen() {
+            try {
+                var elem = document.documentElement;
+                if (!document.fullscreenElement) {
+                    if (elem.requestFullscreen) { var p = elem.requestFullscreen(); if(p) p.catch(function(e){}); }
+                    else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
+                }
+            } catch (e) {}
+        }
+
+        function unlockAudio(audioElem) {
+            if(!audioElem) return;
+            audioElem.muted = true;
+            var playPromise = audioElem.play();
+            if (playPromise !== undefined && typeof playPromise.then === 'function') {
+                playPromise.then(function() { audioElem.pause(); audioElem.currentTime = 0; audioElem.muted = false; }).catch(function(err) {});
+            } else { audioElem.pause(); audioElem.currentTime = 0; audioElem.muted = false; }
+        }
+
+        function startApp() {
+            toggleFullScreen(); preventSleep();
+            document.getElementById('start-overlay').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            unlockAudio(document.getElementById('sound-score'));
+            unlockAudio(document.getElementById('sound-result'));
+            appStarted = true; 
+            renderAll();
+            startRotation();
+        }
+
+        function playSound(type) {
+            if (!appStarted) return;
+            try { 
+                var audio = document.getElementById(type === 'score' ? 'sound-score' : 'sound-result'); 
+                if (audio) { audio.pause(); audio.currentTime = 0; audio.volume = 1; audio.muted = false; var p = audio.play(); if(p) p.catch(function(e){}); }
+            } catch(e) {}
+        }
+        
+        function triggerEpicReveal() {
+            playSound('result');
+            var flash = document.getElementById('flash-screen');
+            flash.style.transition = 'none'; flash.style.opacity = '1';
+            setTimeout(function() { flash.style.transition = 'opacity 0.8s ease-out'; flash.style.opacity = '0'; }, 50);
+            
+            try {
+                var duration = 1.5 * 1000; var end = Date.now() + duration;
+                (function frame() {
+                    confetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#fbbf24', '#ec4899', '#818cf8'] });
+                    confetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#fbbf24', '#ec4899', '#818cf8'] });
+                    if (Date.now() < end) { requestAnimationFrame(frame); }
+                }());
+            } catch(e) {}
+
+            showToast("🔥 പുതിയ റിസൾട്ട് പ്രസിദ്ധീകരിച്ചു! 🔥");
+            
+            // JUMP INSTANTLY TO LATEST RESULTS (VIEW 2)
+            currentViewIndex = 2; 
+            showCurrentView();
+            startRotation(); // Restart timer from here
+        }
+
+        function showToast(msg) {
+            var t = document.getElementById('toast'); t.innerText = msg; t.className = 'show';
+            setTimeout(function(){ t.className = ''; }, 5000);
+        }
+
+        // TV Carousel Slide Loop Logic
+        var currentViewIndex = 1;
+        var totalViews = 1; 
+
+        function showCurrentView() {
+            var views = document.querySelectorAll('.view-container');
+            if(views.length === 0) return;
+            totalViews = views.length;
+            if(currentViewIndex > totalViews) currentViewIndex = 1;
+            
+            views.forEach(function(v) { v.className = 'view-container'; });
+            var activeView = document.getElementById('view-' + currentViewIndex);
+            if(activeView) activeView.className = 'view-container view-active';
+            else { currentViewIndex = 1; document.getElementById('view-1').className = 'view-container view-active'; }
+        }
+
+        function startRotation() {
+            if(slideTimer) clearInterval(slideTimer);
+            slideTimer = setInterval(function() {
+                currentViewIndex++;
+                showCurrentView();
+            }, 15000);
+        }
+
+        // FIREBASE SETUP
+        var firebaseConfig = {
             apiKey: "AIzaSyCo3S007XNUl1bAfgAlMR1vJyDQBNFf6MI",
             authDomain: "kottam-eee89.firebaseapp.com",
             projectId: "kottam-eee89",
@@ -228,350 +298,352 @@
             messagingSenderId: "558082092753",
             appId: "1:558082092753:web:c0a69f647998061a3adff0"
         };
+        firebase.initializeApp(firebaseConfig);
+        var auth = firebase.auth();
+        var db = firebase.firestore();
+
+        var state = { teams: { teamA: { name: 'KHAIBAR WARRIORS' }, teamB: { name: 'KHANDAQ FIGHTERS' } }, programs: [], candidates: [], results: [] };
+        var prevScoreA = -1; var prevScoreB = -1; var prevTotalRes = -1;
+
+        function getProg(id) { for(var i=0; i<state.programs.length; i++) if(state.programs[i].id === id) return state.programs[i]; return null; }
+        function getCand(id) { for(var i=0; i<state.candidates.length; i++) if(state.candidates[i].id === id) return state.candidates[i]; return null; }
+        function getTeamName(tid) { 
+            if(tid === 'KHAIBAR WARRIORS' || tid === 'teamA') return state.teams.teamA.name;
+            if(tid === 'KHANDAQ FIGHTERS' || tid === 'teamB') return state.teams.teamB.name;
+            return tid || '-'; 
+        }
         
-        const appInit = initializeApp(firebaseConfig);
-        const auth = getAuth(appInit);
-        const db = getFirestore(appInit);
-
-        // GLOBAL CONSTANTS & STATE
-        const TEAM_A = "KHAIBAR WARRIORS";
-        const TEAM_B = "KHANDAQ FIGHTERS";
-        const CATEGORIES = ['Kiddies', 'Sub Junior', 'Junior', 'Senior', 'Super Senior', 'General'];
-
-        let state = { programs: [], candidates: [], results: [] };
-        let prevScoreA = -1; let prevScoreB = -1; let prevTotalRes = -1;
-
-        // HELPER FUNCTIONS
-        const getProg = (id) => state.programs.find(p => p.id === id);
-        const getCand = (id) => state.candidates.find(c => c.id === id);
-        const getTeamBadgeClass = (team) => team === TEAM_A ? 'a' : 'b';
-
-        // --- GLOBAL EXPORTS FOR HTML UI ---
-        window.appStarted = false;
-        window.wakeLockObj = null;
-        window.startApp = () => {
-            toggleFullScreen();
-            document.getElementById('start-overlay').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            
-            unlockAudio(document.getElementById('sound-score'));
-            unlockAudio(document.getElementById('sound-result'));
-
-            window.appStarted = true; 
-            simulateInteraction();
-            startCarousel();
-            renderAll();
-        };
-
-        function unlockAudio(audioElem) {
-            if(!audioElem) return;
-            audioElem.muted = true;
-            let p = audioElem.play();
-            if (p !== undefined) p.then(() => { audioElem.pause(); audioElem.currentTime = 0; audioElem.muted = false; }).catch(e=>{});
-        }
-
-        function toggleFullScreen() {
-            try {
-                let el = document.documentElement;
-                if (el.requestFullscreen) el.requestFullscreen().catch(e=>{}); 
-                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-            } catch (e) {}
-        }
-
-        function playSound(type) {
-            if (!window.appStarted) return;
-            try { 
-                let audio = document.getElementById(type === 'score' ? 'sound-score' : 'sound-result'); 
-                if (audio) { audio.pause(); audio.currentTime = 0; audio.volume = 1; audio.muted = false; audio.play().catch(e=>{}); }
-            } catch(e) {}
-        }
-
-        function showToast(msg) {
-            let t = document.getElementById('toast'); 
-            t.innerText = msg; t.style.display = 'block';
-            setTimeout(() => { t.style.display = 'none'; }, 5000);
-        }
-
-        async function preventSleep() {
-            if(!window.appStarted) return;
-            try {
-                if ('wakeLock' in navigator) { 
-                    if(window.wakeLockObj) await window.wakeLockObj.release().catch(e=>{}); 
-                    window.wakeLockObj = await navigator.wakeLock.request('screen');
+        auth.signInAnonymously().then(function() {
+            db.collection('settings').doc('config').onSnapshot(function(snap) {
+                if (snap.exists) { 
+                    var d = snap.data(); 
+                    if (d.programs) state.programs = d.programs; 
+                    if(appStarted) renderAll(); 
                 }
-            } catch(e) {}
-        }
-
-        function simulateInteraction() {
-            if (!window.appStarted) return;
-            try { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift', bubbles: true })); } catch(e){}
-            preventSleep();
-        }
-        setInterval(simulateInteraction, 20000);
-
-        // --- CAROUSEL LOGIC ---
-        let currentViewIndex = 1;
-        let maxViews = 4; // Dynamically updated when tables are generated
-        let carouselTimer;
-
-        function startCarousel() {
-            if (carouselTimer) clearInterval(carouselTimer);
-            carouselTimer = setInterval(function() {
-                // Hide all views
-                let containers = document.querySelectorAll('.view-container');
-                containers.forEach(function(c) { c.classList.remove('view-active'); });
-                
-                currentViewIndex++;
-                if(currentViewIndex > maxViews) currentViewIndex = 1;
-                
-                let nextView = document.getElementById('view-' + currentViewIndex);
-                if(nextView) nextView.classList.add('view-active');
-                else {
-                    currentViewIndex = 1;
-                    document.getElementById('view-1').classList.add('view-active');
-                }
-            }, 15000); // 15 seconds per page
-        }
-
-        // --- FIREBASE INIT ---
-        signInAnonymously(auth).then(() => {
-            onSnapshot(doc(db, 'settings', 'config'), (snap) => {
-                if (snap.exists()) { state.programs = snap.data().programs || []; renderAll(); }
             });
-            onSnapshot(collection(db, 'candidates'), (snap) => {
-                let arr = []; snap.forEach(doc => { arr.push({ id: doc.id, ...doc.data() }); });
-                state.candidates = arr; renderAll();
+            db.collection('candidates').onSnapshot(function(snap) {
+                var arr = []; snap.forEach(function(doc) { var d = doc.data(); d.id = doc.id; arr.push(d); }); state.candidates = arr; 
+                if(appStarted) renderAll();
             });
-            onSnapshot(collection(db, 'results'), (snap) => {
-                let arr = []; snap.forEach(doc => { arr.push({ id: doc.id, ...doc.data() }); });
-                state.results = arr; renderAll();
+            db.collection('results').onSnapshot(function(snap) {
+                var arr = []; snap.forEach(function(doc) { var d = doc.data(); d.id = doc.id; arr.push(d); }); state.results = arr; 
+                if(appStarted) renderAll();
             });
-        }).catch(err => {
-            console.error("Auth Error", err);
         });
 
-        // --- RENDER LOGIC ---
-        function renderAll() {
-            if (!window.appStarted) return;
+        function getCandNamesString(ids) {
+            var arr = []; if(Array.isArray(ids)) { arr = ids; } else if(ids) { arr = [ids]; } if(arr.length === 0) return '-';
+            var names = []; for(var i=0; i<arr.length; i++) { var c = getCand(arr[i]); names.push(c ? c.name : '-'); } return names.join(', ');
+        }
+        function getTeamNamesString(ids) {
+            var arr = []; if(Array.isArray(ids)) { arr = ids; } else if(ids) { arr = [ids]; } if(arr.length === 0) return '-';
+            var teams = []; for(var i=0; i<arr.length; i++) { var c = getCand(arr[i]); if(c) { var tName = getTeamName(c.team); if(teams.indexOf(tName) === -1) teams.push(tName); } } return teams.length > 0 ? teams.join(' & ') : '-';
+        }
+        
+        function isGroupProgram(name) {
+            if (!name) return false;
+            const n = name.toLowerCase();
+            return n.includes('group') || n.includes('burda') || n.includes('burdha') || n.includes('qawwali') || n.includes('mala') || n.includes('mash up') || n.includes('moulid') || n.includes('padappayatt') || n.includes('newspaper') || n.includes('collage');
+        }
+
+        // Generate Table Rows for dynamically created tables
+        function generateTableRows(programList) {
+            var tbody = "";
+            if (programList.length === 0) return "<tr><td colspan='7' style='color:#64748b; padding:20px;'>പ്രോഗ്രാമുകൾ ചേർത്തിട്ടില്ല</td></tr>";
             
-            // Stats Object
-            let stats = {
-                A: { total: 0, boysTotal: 0, girlsTotal: 0, boys: {}, girls: {} },
-                B: { total: 0, boysTotal: 0, girlsTotal: 0, boys: {}, girls: {} }
+            for (var p = 0; p < programList.length; p++) {
+                var tProg = programList[p];
+                var names = tProg.name.split('\n');
+                var mlName = names[0];
+                var enName = names.length > 1 ? "<span class='p-name-eng'>" + names[1] + "</span>" : "";
+
+                var isGrp = tProg.isGroup !== undefined ? tProg.isGroup : isGroupProgram(tProg.name);
+
+                var tTag = "";
+                if(isGrp) tTag += "<span class='s-tag s-grp'>Group</span>";
+                
+                var tRes = null;
+                for(var j=0; j<state.results.length; j++) { if(state.results[j].progId === tProg.id) { tRes = state.results[j]; break; } }
+
+                var a1="-", a2="-", a3="-", b1="-", b2="-", b3="-";
+
+                if (tRes) {
+                    var tF = tRes.pts1 || (isGrp ? 10 : 5); 
+                    var tS = tRes.pts2 || (isGrp ? 5 : 3); 
+                    var tT = tRes.pts3 || (isGrp ? 3 : 1);
+                    
+                    var checkPts = function(ids, pts) {
+                        var arr = []; if(Array.isArray(ids)) { arr = ids; } else if(ids) { arr = [ids]; }
+                        for(var k=0; k<arr.length; k++) {
+                            var cand = getCand(arr[k]);
+                            if(cand) {
+                                if(cand.team === 'KHAIBAR WARRIORS') { if(pts === tF) a1 = tF; else if(pts === tS) a2 = tS; else if(pts === tT) a3 = tT; }
+                                else if(cand.team === 'KHANDAQ FIGHTERS') { if(pts === tF) b1 = tF; else if(pts === tS) b2 = tS; else if(pts === tT) b3 = tT; }
+                            }
+                        }
+                    };
+                    checkPts(tRes.first, tF); checkPts(tRes.second, tS); checkPts(tRes.third, tT);
+                }
+
+                var sA1 = a1 !== "-" ? "color:#fbbf24; font-size:20px;" : "color:#334155;";
+                var sA2 = a2 !== "-" ? "color:#cbd5e1; font-size:18px;" : "color:#334155;";
+                var sA3 = a3 !== "-" ? "color:#d97706; font-size:18px;" : "color:#334155;";
+                var sB1 = b1 !== "-" ? "color:#fbbf24; font-size:20px;" : "color:#334155;";
+                var sB2 = b2 !== "-" ? "color:#cbd5e1; font-size:18px;" : "color:#334155;";
+                var sB3 = b3 !== "-" ? "color:#d97706; font-size:18px;" : "color:#334155;";
+
+                tbody += "<tr>" +
+                    "<td class='t-left'><div class='prog-name-wrapper'><div class='p-name-txt'>" + mlName + enName + "</div>" + tTag + "</div></td>" +
+                    "<td style='" + sA1 + "'>" + a1 + "</td><td style='" + sA2 + "'>" + a2 + "</td><td style='" + sA3 + "'>" + a3 + "</td>" +
+                    "<td class='br-left' style='" + sB1 + "'>" + b1 + "</td><td style='" + sB2 + "'>" + b2 + "</td><td style='" + sB3 + "'>" + b3 + "</td>" +
+                    "</tr>";
+            }
+            return tbody;
+        }
+
+        function createTableView(viewId, title, progs) {
+            var taName = getTeamName('KHAIBAR WARRIORS'); 
+            var tbName = getTeamName('KHANDAQ FIGHTERS');
+            var headerImg = `<div class="header"><div class="flex items-center justify-center drop-shadow-lg mb-3" style="display:flex; justify-content:center; align-items:center; margin-bottom:15px;"><img src="https://i.ibb.co/98232f0908c9d480f91da32c8100c1d0.png" style="height: clamp(40px, 8vw, 70px); filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6));" alt="Logo"></div></div>`;
+            
+            return `
+            <div id="view-${viewId}" class="view-container">
+                ${headerImg}
+                <div class="page-title">പോയിന്റ് ടേബിൾ - ${title}</div>
+                <div class="table-container">
+                    <div class="no-scroll-wrapper">
+                        <table class="pt-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="t-left" style="width: 28%; vertical-align: middle; z-index: 30;">മത്സരം (Program)</th>
+                                    <th colspan="3" class="pt-team-a" style="width: 36%; border-bottom: 2px solid #334155;">${taName}</th>
+                                    <th colspan="3" class="pt-team-b br-left" style="width: 36%; border-bottom: 2px solid #334155;">${tbName}</th>
+                                </tr>
+                                <tr>
+                                    <th style="width: 12%;">🥇 1st</th><th style="width: 12%;">🥈 2nd</th><th style="width: 12%;">🥉 3rd</th>
+                                    <th class="br-left" style="width: 12%;">🥇 1st</th><th style="width: 12%;">🥈 2nd</th><th style="width: 12%;">🥉 3rd</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${generateTableRows(progs)}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderAll() {
+            if (!appStarted) return;
+            
+            var stats = { 
+                teamA: { total: 0, boys: 0, girls: 0 }, 
+                teamB: { total: 0, boys: 0, girls: 0 } 
             };
             
-            CATEGORIES.forEach(c => {
-                stats.A.boys[c] = 0; stats.A.girls[c] = 0;
-                stats.B.boys[c] = 0; stats.B.girls[c] = 0;
-            });
+            var candPoints = {}; // For Kalaprathiba
 
+            // Calculate overall scores & individual candidate points
             state.results.forEach(res => {
-                let prog = getProg(res.progId);
-                let isGroup = prog ? (prog.name.toLowerCase().includes('group') || prog.name.toLowerCase().includes('burd') || prog.name.toLowerCase().includes('mala') || prog.name.toLowerCase().includes('qawwali') || prog.name.toLowerCase().includes('mash up') || prog.name.toLowerCase().includes('moulid') || prog.name.toLowerCase().includes('newspaper') || prog.name.toLowerCase().includes('collage')) : false;
+                var prog = getProg(res.progId);
+                var isGrp = prog ? (prog.isGroup !== undefined ? prog.isGroup : isGroupProgram(prog.name)) : false;
                 
-                // Read from DB if available, fallback to defaults
-                let pts1 = res.pts1 || (isGroup ? 10 : 5);
-                let pts2 = res.pts2 || (isGroup ? 5 : 3);
-                let pts3 = res.pts3 || (isGroup ? 3 : 1);
+                var fPts = res.pts1 || (isGrp ? 10 : 5); 
+                var sPts = res.pts2 || (isGrp ? 5 : 3); 
+                var tPts = res.pts3 || (isGrp ? 3 : 1);
 
-                const addPts = (ids, pts) => {
-                    let arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
+                var addPts = function(ids, pts) {
+                    var arr = []; if(Array.isArray(ids)) { arr = ids; } else if(ids) { arr = [ids]; }
                     arr.forEach(id => {
-                        let c = getCand(id);
-                        if (c) {
-                            let tk = c.team === TEAM_A ? 'A' : (c.team === TEAM_B ? 'B' : null);
-                            if(tk) {
-                                stats[tk].total += pts;
-                                if(c.gender === 'BOYS') {
-                                    stats[tk].boysTotal += pts;
-                                    if(stats[tk].boys[c.cat] !== undefined) stats[tk].boys[c.cat] += pts;
-                                } else if(c.gender === 'GIRLS') {
-                                    stats[tk].girlsTotal += pts;
-                                    if(stats[tk].girls[c.cat] !== undefined) stats[tk].girls[c.cat] += pts;
-                                }
+                        var c = getCand(id); 
+                        if(c) { 
+                            // Overall Team Stats
+                            var tKey = c.team === 'KHAIBAR WARRIORS' ? 'teamA' : (c.team === 'KHANDAQ FIGHTERS' ? 'teamB' : null);
+                            if(tKey) {
+                                stats[tKey].total += pts; 
+                                if(c.gender === 'BOYS') stats[tKey].boys += pts;
+                                if(c.gender === 'GIRLS') stats[tKey].girls += pts;
+                            }
+                            
+                            // Individual Candidate Points (For Kalaprathiba) - Only count Individual events
+                            if(!isGrp) {
+                                candPoints[c.id] = (candPoints[c.id] || 0) + pts;
                             }
                         }
                     });
                 };
-
-                addPts(res.first, pts1);
-                addPts(res.second, pts2);
-                addPts(res.third, pts3);
+                addPts(res.first, fPts); addPts(res.second, sPts); addPts(res.third, tPts);
             });
             
-            let sortedRes = state.results.slice().sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+            var sortedRes = state.results.slice().sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
             
-            // Audio Triggers & Auto-Jump to Latest Results
-            if (prevScoreA !== -1 && (prevScoreA !== stats.A.total || prevScoreB !== stats.B.total)) { 
-                playSound('score'); 
-                showToast("പോയിന്റ് നില അപ്ഡേറ്റ് ചെയ്തു!"); 
+            // Check for notifications
+            if (prevScoreA !== -1 && (prevScoreA !== stats.teamA.total || prevScoreB !== stats.teamB.total)) { 
+                playSound('score'); showToast("പോയിന്റ് നില അപ്ഡേറ്റ് ചെയ്തു!"); 
             }
             if (prevTotalRes !== -1 && sortedRes.length > prevTotalRes) { 
-                playSound('result'); 
-                showToast("🔥 പുതിയ റിസൾട്ട് പ്രസിദ്ധീകരിച്ചു! 🔥"); 
-                
-                // Instantly jump to Latest Results View (View 2)
-                let containers = document.querySelectorAll('.view-container');
-                containers.forEach(c => c.classList.remove('view-active'));
-                currentViewIndex = 2;
-                let view2 = document.getElementById('view-2');
-                if (view2) view2.classList.add('view-active');
-                
-                // Restart the carousel timer
-                startCarousel();
+                triggerEpicReveal(); 
             }
-            prevScoreA = stats.A.total; prevScoreB = stats.B.total; prevTotalRes = sortedRes.length;
+            prevScoreA = stats.teamA.total; prevScoreB = stats.teamB.total; prevTotalRes = sortedRes.length;
 
-            // Update Dashboard (View 1)
-            document.getElementById('score-teamA').innerText = stats.A.total;
-            document.getElementById('score-teamA-boys').innerText = stats.A.boysTotal;
-            document.getElementById('score-teamA-girls').innerText = stats.A.girlsTotal;
+            // Start Building Dynamic HTML
+            var appContainer = document.getElementById('app');
+            var dynamicHtml = '';
+            var taName = getTeamName('KHAIBAR WARRIORS'); 
+            var tbName = getTeamName('KHANDAQ FIGHTERS');
+            var headerImg = `<div class="header"><div class="flex items-center justify-center drop-shadow-lg mb-3" style="display:flex; justify-content:center; align-items:center; margin-bottom:15px;"><img src="https://i.ibb.co/98232f0908c9d480f91da32c8100c1d0.png" style="height: clamp(40px, 10vw, 85px); filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6));" alt="Logo"></div></div>`;
+
+            // ================= VIEW 1: MAIN DASHBOARD =================
+            dynamicHtml += `
+            <div id="view-1" class="view-container ${currentViewIndex === 1 ? 'view-active' : ''}">
+                ${headerImg}
+                <div class="page-title">ടീം പോയിന്റുകൾ (TOTAL SCORE)</div>
+                <div class="dashboard-content">
+                    <div class="team-block">
+                        <div class="team-name team-a">${taName}</div>
+                        <div class="huge-points num-font">${stats.teamA.total}</div>
+                        <div class="gender-split">
+                            <div class="g-stat"><span class="g-lbl">Boys</span><span class="g-pts num-font">${stats.teamA.boys}</span></div>
+                            <div class="g-stat"><span class="g-lbl">Girls</span><span class="g-pts num-font">${stats.teamA.girls}</span></div>
+                        </div>
+                    </div>
+                    <div class="vs-circle">VS</div>
+                    <div class="team-block">
+                        <div class="team-name team-b">${tbName}</div>
+                        <div class="huge-points num-font">${stats.teamB.total}</div>
+                        <div class="gender-split">
+                            <div class="g-stat"><span class="g-lbl">Boys</span><span class="g-pts num-font">${stats.teamB.boys}</span></div>
+                            <div class="g-stat"><span class="g-lbl">Girls</span><span class="g-pts num-font">${stats.teamB.girls}</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-box"><div class="stat-value num-font">${state.programs.length}</div><div class="stat-label">മത്സരങ്ങൾ</div></div>
+                    <div class="stat-box"><div class="stat-value num-font">${state.candidates.length}</div><div class="stat-label">കുട്ടികൾ</div></div>
+                    <div class="stat-box"><div class="stat-value num-font">${sortedRes.length}</div><div class="stat-label">ഫലങ്ങൾ</div></div>
+                </div>
+            </div>`;
+
+            // ================= VIEW 2: LATEST RESULTS =================
+            var resCards = "";
+            if (sortedRes.length === 0) resCards = "<h2 style='color:#64748b; grid-column:1 / -1; text-align:center;'>ഫലങ്ങൾ വന്നിട്ടില്ല...</h2>";
             
-            document.getElementById('score-teamB').innerText = stats.B.total;
-            document.getElementById('score-teamB-boys').innerText = stats.B.boysTotal;
-            document.getElementById('score-teamB-girls').innerText = stats.B.girlsTotal;
+            for(var r=0; r<Math.min(sortedRes.length, 6); r++) {
+                var latestRes = sortedRes[r]; var latestProg = getProg(latestRes.progId);
+                var pNames = latestProg ? latestProg.name.split('\n') : ['-']; var pName = pNames[0]; var pEngName = pNames.length > 1 ? "<span class='rc-title-eng'>" + pNames[1] + "</span>" : "";
+                var pCat = latestProg ? latestProg.cat : '';
+                var isNew = (r === 0) ? " newest" : "";
+                var ribbonHtml = isNew ? "<div class='corner-ribbon'></div>" : "";
+                var c1Names = getCandNamesString(latestRes.first); var c2Names = getCandNamesString(latestRes.second); var c3Names = getCandNamesString(latestRes.third);
+                var c1Teams = getTeamNamesString(latestRes.first); var c2Teams = getTeamNamesString(latestRes.second); var c3Teams = getTeamNamesString(latestRes.third);
 
-            document.getElementById('stat-programs').innerText = state.programs.length;
-            document.getElementById('stat-candidates').innerText = state.candidates.length;
-            document.getElementById('stat-results').innerText = state.results.length;
+                resCards += "<div class='res-card" + isNew + "'>" + ribbonHtml + "<div class='rc-title'><div class='rc-title-text'><span>" + pName + "</span>" + pEngName + "</div> <span class='rc-cat'>" + pCat + "</span></div>";
+                if(c1Names !== '-') resCards += "<div class='rc-row first'><span class='rc-name'>🥇 " + c1Names + "</span><span class='rc-team' style='color:#fbbf24'>" + c1Teams + "</span></div>";
+                if(c2Names !== '-') resCards += "<div class='rc-row second'><span class='rc-name'>🥈 " + c2Names + "</span><span class='rc-team' style='color:#cbd5e1'>" + c2Teams + "</span></div>";
+                if(c3Names !== '-') resCards += "<div class='rc-row third'><span class='rc-name'>🥉 " + c3Names + "</span><span class='rc-team' style='color:#b45309'>" + c3Teams + "</span></div>";
+                resCards += "</div>";
+            }
 
-            // Generate Category Grids (View 3 & View 4)
-            let generateCatGrid = (genderKey) => {
-                return CATEGORIES.map(cat => `
-                    <div class="cat-box">
-                        <div class="cat-title">${cat}</div>
-                        <div class="cat-team-row">
-                            <span class="cat-tname a">KHAIBAR</span>
-                            <span class="cat-pts num-font">${stats.A[genderKey][cat]}</span>
+            dynamicHtml += `
+            <div id="view-2" class="view-container ${currentViewIndex === 2 ? 'view-active' : ''}">
+                ${headerImg}
+                <div class="page-title">ഏറ്റവും പുതിയ ഫലങ്ങൾ (LATEST RESULTS)</div>
+                <div class="results-grid">${resCards}</div>
+            </div>`;
+
+            // ================= VIEW 3: KALAPRATHIBA (TOP SCORERS) =================
+            function getTopScorer(cat, gender) {
+                let eligible = state.candidates.filter(c => c.cat === cat && c.gender === gender);
+                let top = null; let max = 0;
+                eligible.forEach(c => {
+                    if(candPoints[c.id] && candPoints[c.id] > max) { max = candPoints[c.id]; top = c; }
+                });
+                return top ? { ...top, pts: max } : null;
+            }
+
+            var cats = ['Kiddies', 'Sub Junior', 'Junior', 'Senior', 'Super Senior'];
+            var tsCards = "";
+            cats.forEach(c => {
+                var topB = getTopScorer(c, 'BOYS');
+                var topG = getTopScorer(c, 'GIRLS');
+                
+                var boyHtml = topB ? `
+                    <div class="ts-row">
+                        <div class="ts-icon">🤴</div>
+                        <div class="ts-info">
+                            <span class="ts-award">കലാപ്രതിഭ (Kalaprathiba)</span>
+                            <span class="ts-name">${topB.name}</span>
+                            <span class="ts-team ${topB.team==='KHAIBAR WARRIORS'?'a':'b'}">${getTeamName(topB.team)}</span>
                         </div>
-                        <div class="cat-team-row">
-                            <span class="cat-tname b">KHANDAQ</span>
-                            <span class="cat-pts num-font">${stats.B[genderKey][cat]}</span>
+                        <div class="ts-pts num-font">${topB.pts}</div>
+                    </div>` : `<div class="ts-row"><div class="ts-tba">Boys TBA...</div></div>`;
+                    
+                var girlHtml = topG ? `
+                    <div class="ts-row">
+                        <div class="ts-icon">👸</div>
+                        <div class="ts-info">
+                            <span class="ts-award">കലാതിലകം (Kalathilakam)</span>
+                            <span class="ts-name">${topG.name}</span>
+                            <span class="ts-team ${topG.team==='KHAIBAR WARRIORS'?'a':'b'}">${getTeamName(topG.team)}</span>
                         </div>
-                    </div>
-                `).join('');
-            };
+                        <div class="ts-pts num-font" style="color:#f472b6;">${topG.pts}</div>
+                    </div>` : `<div class="ts-row"><div class="ts-tba">Girls TBA...</div></div>`;
 
-            document.getElementById('boys-categories-grid').innerHTML = generateCatGrid('boys');
-            document.getElementById('girls-categories-grid').innerHTML = generateCatGrid('girls');
-
-            // Update Latest Results (View 2)
-            const getNamesStr = (ids) => {
-                let arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
-                if(arr.length === 0) return '-';
-                return arr.map(i => { let c = getCand(i); return c ? c.name : '-'; }).join(', ');
-            };
-            const getTeamStr = (ids) => {
-                let arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
-                if(arr.length === 0) return '';
-                let teamStr = "";
-                // Assuming all winners in a specific rank usually belong to same team in solo events
-                let c = getCand(arr[0]);
-                if (c) {
-                    if (c.team === TEAM_A) teamStr = `<span class='rc-team a'>KHAIBAR</span>`;
-                    else if (c.team === TEAM_B) teamStr = `<span class='rc-team b'>KHANDAQ</span>`;
-                }
-                return teamStr;
-            };
-
-            let resHtml = sortedRes.length === 0 ? "<h2 style='color:#64748b; grid-column:span 2; text-align:center;'>ഫലങ്ങൾ വന്നിട്ടില്ല...</h2>" : "";
-            for(let r=0; r < Math.min(sortedRes.length, 6); r++) {
-                let lRes = sortedRes[r]; let lProg = getProg(lRes.progId);
-                let isNew = r === 0 ? " newest" : "";
-                let rib = isNew ? "<div class='corner-ribbon'></div>" : "";
-                let pName = lProg ? (lProg.progNo ? `<span style="color:#fbbf24; margin-right:5px;">#${lProg.progNo}</span>${lProg.name}` : lProg.name) : '-';
-
-                resHtml += `<div class='res-card${isNew}'>${rib}
-                    <div class='rc-title'>
-                        <div class='rc-title-text'><span>${pName}</span></div>
-                        <span class='rc-cat'>${lProg ? lProg.cat : ''}</span>
+                tsCards += `
+                    <div class="ts-card">
+                        <div class="ts-header">${c}</div>
+                        <div class="ts-body">${boyHtml}${girlHtml}</div>
                     </div>`;
-                if(getNamesStr(lRes.first) !== '-') resHtml += `<div class='rc-row'><span class='rc-name'>🥇 ${getNamesStr(lRes.first)}</span>${getTeamStr(lRes.first)}</div>`;
-                if(getNamesStr(lRes.second) !== '-') resHtml += `<div class='rc-row'><span class='rc-name'>🥈 ${getNamesStr(lRes.second)}</span>${getTeamStr(lRes.second)}</div>`;
-                if(getNamesStr(lRes.third) !== '-') resHtml += `<div class='rc-row'><span class='rc-name'>🥉 ${getNamesStr(lRes.third)}</span>${getTeamStr(lRes.third)}</div>`;
-                resHtml += "</div>";
-            }
-            document.getElementById('results-grid-container').innerHTML = resHtml;
-
-            // Generate Dynamic Program Tables
-            let sortedProgs = [...state.programs].sort((a,b) => Number(a.progNo || 0) - Number(b.progNo || 0));
-            let chunkedProgs = [];
-            for (let i = 0; i < sortedProgs.length; i += 8) {
-                chunkedProgs.push(sortedProgs.slice(i, i + 8));
-            }
-
-            let dynamicTablesHtml = "";
-            let viewCounter = 5; // Starts after view 4
-
-            chunkedProgs.forEach((chunk, index) => {
-                let tbody = chunk.map(p => {
-                    let pName = p.progNo ? `<span style="color:#fbbf24; margin-right:5px;">#${p.progNo}</span>${p.name}` : p.name;
-                    let tTag = ""; 
-                    let isGroup = p.name.toLowerCase().includes('group') || p.name.toLowerCase().includes('burd') || p.name.toLowerCase().includes('mala');
-                    if(isGroup) tTag += "<span class='s-tag s-grp'>Group</span>";
-                    tTag += `<span class='s-tag s-cat'>${p.cat}</span>`;
-
-                    let pRes = state.results.find(r => r.progId === p.id);
-                    let a1="-", a2="-", a3="-", b1="-", b2="-", b3="-";
-
-                    if (pRes) {
-                        let pts1 = pRes.pts1 || (isGroup ? 10 : 5);
-                        let pts2 = pRes.pts2 || (isGroup ? 5 : 3);
-                        let pts3 = pRes.pts3 || (isGroup ? 3 : 1);
-
-                        const checkPts = (ids, pts) => {
-                            let arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
-                            arr.forEach(id => {
-                                let cand = getCand(id);
-                                if(cand) {
-                                    if(cand.team === TEAM_A) {
-                                        if(pts === pts1) a1 = pts; else if(pts === pts2) a2 = pts; else if(pts === pts3) a3 = pts;
-                                    } else if(cand.team === TEAM_B) {
-                                        if(pts === pts1) b1 = pts; else if(pts === pts2) b2 = pts; else if(pts === pts3) b3 = pts;
-                                    }
-                                }
-                            });
-                        };
-                        checkPts(pRes.first, pts1); checkPts(pRes.second, pts2); checkPts(pRes.third, pts3);
-                    }
-
-                    let sA1 = a1 !== "-" ? "color:#fbbf24; font-size:120%;" : "color:#334155;";
-                    let sA2 = a2 !== "-" ? "color:#cbd5e1; font-size:110%;" : "color:#334155;";
-                    let sA3 = a3 !== "-" ? "color:#d97706; font-size:110%;" : "color:#334155;";
-                    let sB1 = b1 !== "-" ? "color:#fbbf24; font-size:120%;" : "color:#334155;";
-                    let sB2 = b2 !== "-" ? "color:#cbd5e1; font-size:110%;" : "color:#334155;";
-                    let sB3 = b3 !== "-" ? "color:#d97706; font-size:110%;" : "color:#334155;";
-
-                    return `<tr>
-                        <td class='t-left'><div class='prog-name-wrapper'><div class='p-name-txt'>${pName}</div>${tTag}</div></td>
-                        <td style='${sA1}'>${a1}</td><td style='${sA2}'>${a2}</td><td style='${sA3}'>${a3}</td>
-                        <td class='br-left' style='${sB1}'>${b1}</td><td style='${sB2}'>${b2}</td><td style='${sB3}'>${b3}</td>
-                    </tr>`;
-                }).join('');
-
-                dynamicTablesHtml += `
-                    <div id="view-${viewCounter}" class="view-container">
-                        <div class="header">
-                            <img src="1000741398.jpg" class="fest-logo-img" onerror="this.style.display='none'">
-                        </div>
-                        <div class="page-title">പോയിന്റ് ടേബിൾ (TABLE ${index + 1}/${chunkedProgs.length})</div>
-                        <div class="table-container">
-                            <table class="pt-header-table"><colgroup><col style="width:28%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"></colgroup>
-                                <thead><tr><th rowspan="2" class="t-left">മത്സരം (Program)</th><th colspan="3" class="pt-team-a">KHAIBAR</th><th colspan="3" class="pt-team-b br-left">KHANDAQ</th></tr><tr><th>🥇 1st</th><th>🥈 2nd</th><th>🥉 3rd</th><th class="br-left">🥇 1st</th><th>🥈 2nd</th><th>🥉 3rd</th></tr></thead>
-                            </table>
-                            <div class="no-scroll-wrapper">
-                                <table class="pt-table"><colgroup><col style="width:28%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"></colgroup>
-                                    <tbody>${tbody}</tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                viewCounter++;
             });
 
-            document.getElementById('dynamic-tables').innerHTML = dynamicTablesHtml;
-            maxViews = viewCounter - 1; // Update global max views for the carousel
+            dynamicHtml += `
+            <div id="view-3" class="view-container ${currentViewIndex === 3 ? 'view-active' : ''}">
+                ${headerImg}
+                <div class="page-title">Top Scorers (കലാപ്രതിഭ & കലാതിലകം)</div>
+                <div class="ts-grid">${tsCards}</div>
+            </div>`;
+
+            // ================= VIEWS 4+: DYNAMIC PAGINATED TABLES =================
+            let viewCounter = 4;
+            let tableGroups = [
+                { cat: 'Kiddies', g: 'BOYS' }, { cat: 'Kiddies', g: 'GIRLS' },
+                { cat: 'Sub Junior', g: 'BOYS' }, { cat: 'Sub Junior', g: 'GIRLS' },
+                { cat: 'Junior', g: 'BOYS' }, { cat: 'Junior', g: 'GIRLS' },
+                { cat: 'Senior', g: 'BOYS' }, { cat: 'Senior', g: 'GIRLS' },
+                { cat: 'Super Senior', g: 'BOYS' }, { cat: 'Super Senior', g: 'GIRLS' },
+                { cat: 'General', g: 'BOYS' }, { cat: 'General', g: 'GIRLS' }
+            ];
+            let types = ['Stage', 'Non-Stage'];
+
+            tableGroups.forEach(cg => {
+                types.forEach(type => {
+                    // Filter exact programs
+                    let progs = state.programs.filter(p => {
+                        let pGender = p.gender || 'ALL';
+                        if(pGender === 'ALL') {
+                            if(p.name.toLowerCase().includes('boys') || p.name.toLowerCase().includes('(boys)')) pGender = 'BOYS';
+                            else if(p.name.toLowerCase().includes('girls') || p.name.toLowerCase().includes('(girls)')) pGender = 'GIRLS';
+                        }
+                        return p.cat === cg.cat && (pGender === cg.g || pGender === 'ALL') && (p.type || 'Stage') === type;
+                    });
+                    
+                    if(progs.length > 0) {
+                        // Sort by Program No
+                        progs.sort((a,b)=> Number(a.progNo || 0) - Number(b.progNo || 0));
+                        
+                        // Chunk into groups of 7 rows per slide
+                        for(let i=0; i<progs.length; i+=7) {
+                            let chunk = progs.slice(i, i+7);
+                            let title = `${cg.cat.toUpperCase()} (${cg.g}) - ${type.toUpperCase()}`;
+                            dynamicHtml += createTableView(viewCounter, title, chunk);
+                            viewCounter++;
+                        }
+                    }
+                });
+            });
+
+            appContainer.innerHTML = dynamicHtml;
+            showCurrentView(); // Ensure correct view is visible after re-render
         }
     </script>
 </body>
