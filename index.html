@@ -48,41 +48,64 @@
 
         #flash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9998; opacity: 0; pointer-events: none; }
 
-        /* --- NEW RESULT FULL SCREEN OVERLAY --- */
         #new-result-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: radial-gradient(circle at center, #3b0764 0%, #020617 100%);
+            background: radial-gradient(circle at top center, #4c1d95 0%, #020617 80%);
             z-index: 9500; display: none; opacity: 0; flex-direction: column;
-            align-items: center; justify-content: center; padding: 40px;
-            transition: opacity 0.5s ease-in-out;
+            align-items: center; justify-content: center; padding: 30px;
+            transition: opacity 0.5s ease-in-out; overflow: hidden;
         }
-        .nr-header { color: #fbbf24; font-size: clamp(30px, 4vw, 50px); font-weight: 900; letter-spacing: 3px; margin-bottom: 20px; text-shadow: 0 0 20px rgba(251,191,36,0.5); animation: pulseGlow 2s infinite; text-transform: uppercase; }
-        .nr-prog { font-size: clamp(40px, 6vw, 70px); color: #fff; font-weight: 900; text-align: center; margin-bottom: 10px; line-height: 1.2; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .nr-cat { background: #ec4899; color: white; padding: 5px 25px; border-radius: 20px; font-size: 20px; font-weight: bold; text-transform: uppercase; margin-bottom: 40px; box-shadow: 0 5px 15px rgba(236,72,153,0.5); }
         
-        .nr-podium { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 1100px; }
-        .nr-rank { display: flex; align-items: center; background: rgba(0,0,0,0.6); border-radius: 20px; padding: 20px 30px; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 15px 30px rgba(0,0,0,0.4);}
-        .nr-rank.first { border-color: #fbbf24; background: linear-gradient(90deg, rgba(251,191,36,0.2) 0%, rgba(0,0,0,0.8) 100%); transform: scale(1.05); z-index: 2; margin-bottom: 10px;}
-        .nr-rank.second { border-color: #cbd5e1; }
-        .nr-rank.third { border-color: #b45309; }
-        
-        .nr-medal { font-size: clamp(50px, 6vw, 70px); margin-right: 30px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
-        .nr-rank.first .nr-medal { font-size: clamp(70px, 8vw, 90px); }
-        
-        .nr-details { flex: 1; display: flex; flex-direction: column; }
-        .nr-names { font-size: clamp(20px, 3vw, 35px); font-weight: bold; color: #fff; line-height: 1.3; }
-        .nr-rank.first .nr-names { font-size: clamp(25px, 4vw, 45px); color: #fbbf24; }
-        
-        .nr-team { font-size: 18px; font-weight: bold; margin-top: 8px; padding: 5px 15px; border-radius: 10px; width: fit-content; text-transform: uppercase; letter-spacing: 1px;}
-        .nr-team.kw { background: rgba(251, 113, 133, 0.2); color: #fb7185; border: 1px solid rgba(251, 113, 133, 0.5);}
-        .nr-team.kf { background: rgba(129, 140, 248, 0.2); color: #818cf8; border: 1px solid rgba(129, 140, 248, 0.5);}
-        
-        @keyframes pulseGlow {
-            0%, 100% { text-shadow: 0 0 20px rgba(251,191,36,0.5); }
-            50% { text-shadow: 0 0 40px rgba(251,191,36,0.9), 0 0 80px rgba(251,191,36,0.5); }
+        .nr-glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px); border: 2px solid rgba(139, 92, 246, 0.4);
+            border-radius: 30px; padding: 40px; width: 95%; max-width: 1400px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 30px rgba(139, 92, 246, 0.2);
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            transform: translateY(50px); animation: slideUpReveal 0.8s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        /* Manual Nav Controls */
+        @keyframes slideUpReveal { to { transform: translateY(0); } }
+
+        .nr-top-badge { background: #fbbf24; color: #78350f; font-weight: 900; padding: 8px 25px; border-radius: 30px; letter-spacing: 3px; font-size: 20px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(251,191,36,0.6); animation: pulseGlow 2s infinite;}
+        .nr-prog-title { font-size: clamp(45px, 6vw, 70px); color: #fff; font-weight: 900; line-height: 1.1; text-shadow: 0 10px 20px rgba(0,0,0,0.8); margin-bottom: 5px; }
+        .nr-prog-cat { font-size: clamp(20px, 3vw, 28px); color: #cbd5e1; font-weight: bold; text-transform: uppercase; margin-bottom: 30px; background: rgba(0,0,0,0.4); padding: 5px 20px; border-radius: 10px;}
+
+        .nr-winners-grid { display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center; }
+        .nr-sub-winners { display: flex; gap: 20px; width: 100%; justify-content: center; }
+        
+        .nr-winner-card {
+            background: rgba(0,0,0,0.6); border-radius: 20px; padding: 25px; flex: 1;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            border-top: 5px solid; position: relative; overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+        
+        .nr-winner-card.gold { border-color: #fbbf24; background: linear-gradient(180deg, rgba(251,191,36,0.15) 0%, rgba(0,0,0,0.8) 100%); width: 100%; max-width: 900px; transform: scale(1.05); z-index: 2; border-width: 8px;}
+        .nr-winner-card.silver { border-color: #cbd5e1; background: linear-gradient(180deg, rgba(203,213,225,0.1) 0%, rgba(0,0,0,0.8) 100%); max-width: 440px;}
+        .nr-winner-card.bronze { border-color: #b45309; background: linear-gradient(180deg, rgba(180,83,9,0.1) 0%, rgba(0,0,0,0.8) 100%); max-width: 440px;}
+
+        .nr-medal { font-size: 35px; font-weight: 900; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; text-shadow: 0 5px 10px rgba(0,0,0,0.5);}
+        .nr-winner-card.gold .nr-medal { font-size: 50px; color: #fbbf24; }
+        .nr-winner-card.silver .nr-medal { color: #cbd5e1; }
+        .nr-winner-card.bronze .nr-medal { color: #b45309; }
+
+        .nr-names { font-size: clamp(20px, 2.5vw, 32px); font-weight: bold; color: #fff; line-height: 1.3; max-height: 120px; overflow-y: auto; width: 100%;}
+        .nr-winner-card.gold .nr-names { font-size: clamp(26px, 3.5vw, 42px); color: #fff; max-height: 160px; }
+        
+        /* Custom scrollbar for massive group names inside card */
+        .nr-names::-webkit-scrollbar { width: 5px; }
+        .nr-names::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+
+        .nr-team { font-size: 18px; font-weight: bold; margin-top: 15px; padding: 6px 20px; border-radius: 10px; text-transform: uppercase; letter-spacing: 1px;}
+        .nr-team.kw { background: rgba(251, 113, 133, 0.2); color: #fb7185; border: 1px solid rgba(251, 113, 133, 0.5);}
+        .nr-team.kf { background: rgba(129, 140, 248, 0.2); color: #818cf8; border: 1px solid rgba(129, 140, 248, 0.5);}
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(251,191,36,0.6); }
+            50% { box-shadow: 0 0 40px rgba(251,191,36,1); }
+        }
+
         .nav-zone { position: fixed; top: 0; bottom: 0; width: 10vw; z-index: 9000; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
         .nav-zone:hover { opacity: 1; }
         .nav-zone.left { left: 0; background: linear-gradient(to right, rgba(0,0,0,0.4), transparent); }
@@ -95,7 +118,6 @@
             animation: fadeIn 0.8s ease-in-out; overflow: hidden;
         }
         .view-active { display: -webkit-flex; display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         .header { text-align: center; margin-bottom: 10px; }
         .fest-logo-img { height: clamp(40px, 8vh, 85px); object-fit: contain; filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6)); border-radius: 10px; }
@@ -142,7 +164,6 @@
         .rc-team { font-size: 12px; font-weight: bold; padding: 3px 6px; border-radius: 4px; background: rgba(255,255,255,0.1); }
         .rc-team.a { color: #fb7185; } .rc-team.b { color: #818cf8; }
 
-        /* TS SCORES (KALAPRATHIBA) */
         .ts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; flex: 1; align-content: center; }
         .ts-card { background: rgba(15,23,42,0.8); border: 2px solid rgba(251,191,36,0.3); border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.4);}
         .ts-header { background: linear-gradient(90deg, #78350f, #92400e); padding: 10px; text-align: center; font-size: 18px; font-weight: 900; color: #fbbf24; text-transform: uppercase; letter-spacing: 2px; }
@@ -155,32 +176,61 @@
         .ts-team.a { color: #fb7185; } .ts-team.b { color: #818cf8; }
         .ts-pts { font-size: 35px; font-weight: 900; color: #34d399; padding-left: 10px; text-align: right; }
 
-        /* TABLES */
         .table-container { background: rgba(15, 23, 42, 0.8); border-radius: 15px; padding: 10px; border: 1px solid rgba(255,255,255,0.1); flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;}
         .pt-header-table { width: 100%; border-collapse: collapse; background: rgba(2, 6, 23, 0.98); border-radius: 10px 10px 0 0; flex-shrink: 0; table-layout: fixed; border-bottom: 2px solid #334155;}
         .no-scroll-wrapper { flex: 1; background: rgba(0,0,0,0.4); border-radius: 0 0 10px 10px; overflow: hidden; display: flex; flex-direction: column; }
         .pt-table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
-        .pt-table tbody tr { height: 1%; } 
-        th, td { text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .pt-header-table th { color: #94a3b8; text-transform: uppercase; font-size: 14px; padding: 8px;}
-        .pt-table td { padding: 6px 10px; font-size: 18px; font-weight: bold; }
-        .t-left { text-align: left !important; padding-left: 20px !important; vertical-align: middle;}
+        
+        /* Flex row heights automatically to fill space without scroll */
+        .pt-table tbody { display: flex; flex-direction: column; height: 100%; width: 100%; }
+        .pt-table tbody tr { display: flex; width: 100%; flex: 1; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .pt-table td { display: flex; align-items: center; justify-content: center; height: 100%; overflow: hidden;}
+        
+        .pt-header-table th { color: #94a3b8; text-transform: uppercase; font-size: 14px; padding: 8px; text-align: center;}
+        .pt-header-table .t-left { text-align: left; padding-left: 20px;}
+        .pt-table .t-left { justify-content: flex-start; padding-left: 20px !important;}
         
         .prog-name-wrapper { display: flex; align-items: center; justify-content: flex-start; width: 100%; }
-        .p-name-txt { font-size: 18px; font-weight: bold; display: flex; flex-direction: column; line-height: 1.1; color: #f1f5f9; }
+        .p-name-txt { font-weight: bold; display: flex; flex-direction: column; line-height: 1.1; color: #f1f5f9; }
         .s-tag { font-size: 10px; background: #334155; padding: 3px 5px; border-radius: 4px; color: #cbd5e1; margin-left: 8px; font-weight: bold; text-transform: uppercase; flex-shrink: 0;}
         .s-grp { background: #78350f; color: #fcd34d; }
         .s-nst { background: #0f766e; color: #a7f3d0; }
         
-        .pt-team-a { color: #fb7185; font-size: 18px !important; } 
-        .pt-team-b { color: #818cf8; font-size: 18px !important; }
+        .pt-team-a { color: #fb7185; } 
+        .pt-team-b { color: #818cf8; }
         .br-left { border-left: 2px solid #334155; }
+        .col-28 { width: 28%; } .col-12 { width: 12%; }
 
-        /* Dynamic scaling for long lists to prevent scrolling */
-        .semi-compact-table td { padding: 5px 8px; font-size: 16px; }
-        .semi-compact-table .p-name-txt { font-size: 16px; }
-        .compact-table td { padding: 4px 6px; font-size: 14px; }
+        /* SCALING MATRIX (Guarantees fitting on 1 page without pagination) */
+        
+        /* DEFAULT (< 8 items) */
+        .pt-table td { font-size: 20px; font-weight: bold; padding: 5px 10px; }
+        .p-name-txt { font-size: 20px; }
+        .pt-team-a, .pt-team-b { font-size: 22px !important; }
+
+        /* SEMI-COMPACT (8 to 12 items) */
+        .semi-compact-table td { font-size: 17px; padding: 4px 8px; }
+        .semi-compact-table .p-name-txt { font-size: 17px; }
+        .semi-compact-table .pt-team-a, .semi-compact-table .pt-team-b { font-size: 18px !important; }
+        .semi-compact-table .s-tag { font-size: 9px; padding: 2px 4px;}
+
+        /* COMPACT (13 to 18 items) */
+        .compact-table td { font-size: 14px; padding: 3px 5px; }
         .compact-table .p-name-txt { font-size: 14px; }
+        .compact-table .pt-team-a, .compact-table .pt-team-b { font-size: 15px !important; }
+        .compact-table .s-tag { font-size: 8px; padding: 2px 3px;}
+
+        /* MICRO (19 to 25 items) */
+        .micro-table td { font-size: 12px; padding: 2px 4px; }
+        .micro-table .p-name-txt { font-size: 12px; }
+        .micro-table .pt-team-a, .micro-table .pt-team-b { font-size: 13px !important; }
+        .micro-table .s-tag { display: none; } /* Hide tags to save space */
+        
+        /* NANO (> 25 items) */
+        .nano-table td { font-size: 10px; padding: 1px 3px; font-weight: normal;}
+        .nano-table .p-name-txt { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 25vw; display: block;}
+        .nano-table .pt-team-a, .nano-table .pt-team-b { font-size: 11px !important; font-weight: bold; }
+        .nano-table .s-tag { display: none; }
 
         #toast { position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 15px 30px; border-radius: 10px; font-size: 20px; font-weight: bold; transform: translateY(-150px); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10000; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.2); }
         #toast.show { transform: translateY(0); }
@@ -195,12 +245,12 @@
     <div class="zero-gravity-bg" id="zg-bg"></div>
     <div id="flash-screen"></div>
     
-    <!-- NEW RESULT OVERLAY -->
+    <!-- NEW RESULT CINEMATIC OVERLAY -->
     <div id="new-result-overlay"></div>
 
     <div id="start-overlay" onclick="startApp()">
         <button class="start-btn">Start Live Result TV</button>
-        <p style="margin-top:20px; font-size:16px; color:#94a3b8; text-align:center;">Click anywhere to launch<br><br><span style="color:#fbbf24">Supports Keyboard Navigation (Left/Right Arrows)</span></p>
+        <p style="margin-top:20px; font-size:16px; color:#94a3b8; text-align:center;">Click anywhere to launch<br><br><span style="color:#fbbf24">Supports Keyboard Navigation (Left/Right Arrows) & Swipe</span></p>
     </div>
 
     <!-- UI Navigation Zones -->
@@ -219,7 +269,6 @@
         var currentViewIndex = 1;
         var totalViews = 1;
 
-        // Visual effects setup
         function createZeroGravity() {
             var bg = document.getElementById('zg-bg');
             var colors = ['#ec4899', '#8b5cf6', '#fbbf24', '#34d399', '#fb7185'];
@@ -238,7 +287,6 @@
         }
         createZeroGravity();
 
-        // System setup
         function preventSleep() { try { if ('wakeLock' in navigator && typeof navigator.wakeLock.request === 'function') { navigator.wakeLock.request('screen').catch(function(){}); } } catch(e) {} }
         function toggleFullScreen() { try { var el = document.documentElement; if (!document.fullscreenElement) { if (el.requestFullscreen) el.requestFullscreen(); else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); } } catch (e) {} }
         function unlockAudio(a) { if(a) { a.muted = true; var p = a.play(); if (p !== undefined) p.then(()=>{a.pause(); a.currentTime=0; a.muted=false;}).catch(e=>{}); } }
@@ -253,7 +301,6 @@
             try { var a = document.getElementById(type === 'score' ? 'sound-score' : 'sound-result'); if (a) { a.pause(); a.currentTime=0; a.volume=1; a.muted=false; a.play().catch(e=>{}); } } catch(e) {}
         }
 
-        // Navigation
         function showCurrentView() {
             var views = document.querySelectorAll('.view-container');
             if(views.length === 0) return;
@@ -305,49 +352,53 @@
 
             showToast("🔥 പുതിയ റിസൾട്ട് പ്രസിദ്ധീകരിച്ചു! 🔥");
             
-            // Build New Result Overlay
             var prog = getProg(newRes.progId);
             var pName = prog ? prog.name.split('\n')[0] : 'Unknown Program';
             var pCat = prog ? prog.cat : '';
-            var isGrp = prog ? (prog.isGroup || isGroupProgram(pName)) : false;
+            var pGender = prog ? (prog.gender !== 'ALL' ? ` - ${prog.gender}` : '') : '';
+            var fullCatString = `${pCat}${pGender}`;
             
-            var buildRank = function(ids, rankClass, medal) {
+            var buildCard = function(ids, rankClass, medalText) {
                 var names = getCandNamesString(ids);
                 if (names === '-') return '';
                 var teamsStr = getTeamNamesString(ids);
                 var teamClass = teamsStr.includes('KHAIBAR') ? 'kw' : (teamsStr.includes('KHANDAQ') ? 'kf' : '');
                 
-                // Shrink text aggressively if it's a huge group
-                var nameArr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
-                var isMassive = nameArr.length > 5 || isGrp;
-
-                return `<div class="nr-rank ${rankClass}">
-                            <div class="nr-medal">${medal}</div>
-                            <div class="nr-details">
-                                <div class="nr-names" ${isMassive ? 'style="font-size: clamp(14px, 2vw, 24px);"' : ''}>${names}</div>
-                                <div class="nr-team ${teamClass}">${teamsStr}</div>
-                            </div>
+                return `<div class="nr-winner-card ${rankClass}">
+                            <div class="nr-medal">${medalText}</div>
+                            <div class="nr-names custom-scrollbar">${names}</div>
+                            <div class="nr-team ${teamClass}">${teamsStr}</div>
                         </div>`;
             };
 
+            var fCard = buildCard(newRes.first, 'gold', '🥇 1ST PLACE');
+            var sCard = buildCard(newRes.second, 'silver', '🥈 2ND PLACE');
+            var tCard = buildCard(newRes.third, 'bronze', '🥉 3RD PLACE');
+            
+            var subWinnersHtml = '';
+            if (sCard || tCard) {
+                subWinnersHtml = `<div class="nr-sub-winners">${sCard}${tCard}</div>`;
+            }
+
             var html = `
-                <div class="nr-header">🎉 പുതിയ ഫലം (NEW RESULT) 🎉</div>
-                <div class="nr-prog">${prog?.progNo ? `#${prog.progNo} ` : ''}${pName}</div>
-                <div class="nr-cat">${pCat}</div>
-                <div class="nr-podium">
-                    ${buildRank(newRes.first, 'first', '🥇')}
-                    ${buildRank(newRes.second, 'second', '🥈')}
-                    ${buildRank(newRes.third, 'third', '🥉')}
+                <div class="nr-glass-panel">
+                    <div class="nr-top-badge">OFFICIAL RESULT</div>
+                    <h1 class="nr-prog-title">${prog?.progNo ? `#${prog.progNo} ` : ''}${pName}</h1>
+                    <h3 class="nr-prog-cat">${fullCatString}</h3>
+                    <div class="nr-winners-grid">
+                        ${fCard}
+                        ${subWinnersHtml}
+                    </div>
                 </div>
             `;
             
             var overlay = document.getElementById('new-result-overlay');
             overlay.innerHTML = html;
             overlay.style.display = 'flex';
-            void overlay.offsetWidth; // force reflow
+            void overlay.offsetWidth; 
             overlay.style.opacity = '1';
 
-            if(slideTimer) clearInterval(slideTimer); // Pause rotation
+            if(slideTimer) clearInterval(slideTimer); 
 
             setTimeout(function() {
                 overlay.style.opacity = '0';
@@ -371,7 +422,6 @@
             resetRotation();
         }
 
-        // Firebase Sync
         var firebaseConfig = {
             apiKey: "AIzaSyCo3S007XNUl1bAfgAlMR1vJyDQBNFf6MI",
             authDomain: "kottam-eee89.firebaseapp.com",
@@ -407,7 +457,6 @@
             });
         });
 
-        // String Generators
         function getCandNamesString(ids) {
             var arr = Array.isArray(ids) ? ids : (ids ? [ids] : []); if(arr.length === 0) return '-';
             return arr.map(id => { var c = getCand(id); return c ? c.name : '-'; }).join(', ');
@@ -417,13 +466,13 @@
             var teams = []; arr.forEach(id => { var c = getCand(id); if(c) { var t = getTeamName(c.team); if(teams.indexOf(t) === -1) teams.push(t); }});
             return teams.length > 0 ? teams.join(' & ') : '-';
         }
-        function isGroupProgram(name) {
+        function isGroupProgram(name, forceIsGroup) {
+            if (forceIsGroup !== undefined) return forceIsGroup;
             if (!name) return false;
             const n = name.toLowerCase();
             return n.includes('group') || n.includes('burda') || n.includes('burdha') || n.includes('qawwali') || n.includes('mala') || n.includes('mash up') || n.includes('moulid') || n.includes('padappayatt') || n.includes('newspaper') || n.includes('collage');
         }
 
-        // Table Builder Helper
         function createTableView(viewId, title, progs, compactClass) {
             var taName = getTeamName('teamA'); var tbName = getTeamName('teamB');
             var headerImg = `<div class="header"><div class="flex items-center justify-center drop-shadow-lg mb-3" style="display:flex; justify-content:center; align-items:center;"><img src="1000741398.jpg" class="fest-logo-img" style="filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6)); border-radius:10px;"></div></div>`;
@@ -464,9 +513,9 @@
                 var sB3 = b3 !== "-" ? "color:#d97706; font-size:110%;" : "color:#334155;";
 
                 tbody += `<tr>
-                    <td class='t-left'><div class='prog-name-wrapper'><div class='p-name-txt'>${tProg.progNo?`#${tProg.progNo} ` : ''}${mlName}</div>${tTag}</div></td>
-                    <td style='${sA1}'>${a1}</td><td style='${sA2}'>${a2}</td><td style='${sA3}'>${a3}</td>
-                    <td class='br-left' style='${sB1}'>${b1}</td><td style='${sB2}'>${b2}</td><td style='${sB3}'>${b3}</td>
+                    <td class='t-left col-28'><div class='prog-name-wrapper'><div class='p-name-txt'>${tProg.progNo?`#${tProg.progNo} ` : ''}${mlName}</div>${tTag}</div></td>
+                    <td class='col-12' style='${sA1}'>${a1}</td><td class='col-12' style='${sA2}'>${a2}</td><td class='col-12' style='${sA3}'>${a3}</td>
+                    <td class='br-left col-12' style='${sB1}'>${b1}</td><td class='col-12' style='${sB2}'>${b2}</td><td class='col-12' style='${sB3}'>${b3}</td>
                 </tr>`;
             }
 
@@ -475,11 +524,11 @@
                 ${headerImg}
                 <div class="page-title">പോയിന്റ് ടേബിൾ - ${title}</div>
                 <div class="table-container">
-                    <table class="pt-header-table"><colgroup><col style="width:28%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"></colgroup>
-                        <thead><tr><th rowspan="2" class="t-left">മത്സരം (Program)</th><th colspan="3" class="pt-team-a">${taName}</th><th colspan="3" class="pt-team-b br-left">${tbName}</th></tr>
-                        <tr><th>🥇 1st</th><th>🥈 2nd</th><th>🥉 3rd</th><th class="br-left">🥇 1st</th><th>🥈 2nd</th><th>🥉 3rd</th></tr></thead>
+                    <table class="pt-header-table">
+                        <thead><tr><th rowspan="2" class="t-left col-28">മത്സരം (Program)</th><th colspan="3" class="pt-team-a" style="width:36%">${taName}</th><th colspan="3" class="pt-team-b br-left" style="width:36%">${tbName}</th></tr>
+                        <tr><th class="col-12">🥇 1st</th><th class="col-12">🥈 2nd</th><th class="col-12">🥉 3rd</th><th class="br-left col-12">🥇 1st</th><th class="col-12">🥈 2nd</th><th class="col-12">🥉 3rd</th></tr></thead>
                     </table>
-                    <div class="no-scroll-wrapper"><table class="pt-table ${compactClass}"><colgroup><col style="width:28%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"></colgroup><tbody>${tbody}</tbody></table></div>
+                    <div class="no-scroll-wrapper"><table class="pt-table ${compactClass}"><tbody>${tbody}</tbody></table></div>
                 </div>
             </div>`;
         }
@@ -494,7 +543,6 @@
             state.results.forEach(res => {
                 var prog = getProg(res.progId);
                 var isGrp = prog ? (prog.isGroup !== undefined ? prog.isGroup : isGroupProgram(prog.name)) : false;
-                
                 var fPts = res.pts1 || (isGrp ? 10 : 5); var sPts = res.pts2 || (isGrp ? 5 : 3); var tPts = res.pts3 || (isGrp ? 3 : 1);
 
                 var addPts = function(ids, pts) {
@@ -587,7 +635,7 @@
             });
             dynamicHtml += `<div id="view-3" class="view-container">${headerImg}<div class="page-title">Top Scorers (കലാപ്രതിഭ & കലാതിലകം)</div><div class="ts-grid">${tsCards}</div></div>`;
 
-            // VIEWS 4+: DYNAMIC PAGINATED BALANCED TABLES
+            // VIEWS 4+: DYNAMIC SINGLE PAGE TABLES (NO PARTS)
             let viewCounter = 4;
             let cats = ['Kiddies', 'Sub Junior', 'Junior', 'Senior', 'Super Senior', 'General'];
             let genders = ['BOYS', 'GIRLS'];
@@ -606,22 +654,17 @@
                     if(progs.length > 0) {
                         progs.sort((a,b)=> Number(a.progNo || 0) - Number(b.progNo || 0));
                         
-                        // Balanced chunking to avoid 1-item pages
-                        let maxPerPage = 9;
-                        let numPages = Math.ceil(progs.length / maxPerPage);
-                        let itemsPerPage = Math.ceil(progs.length / numPages);
+                        let title = `${c.toUpperCase()} (${g})`;
                         
-                        for(let i=0; i<progs.length; i+=itemsPerPage) {
-                            let chunk = progs.slice(i, i+itemsPerPage);
-                            let title = `${c.toUpperCase()} (${g})`;
-                            if (numPages > 1) title += ` - Part ${Math.floor(i/itemsPerPage)+1}`;
-                            
-                            // Auto scale CSS
-                            let compactClass = chunk.length > 7 ? "compact-table" : (chunk.length > 5 ? "semi-compact-table" : "");
-                            
-                            dynamicHtml += createTableView(viewCounter, title, chunk, compactClass);
-                            viewCounter++;
-                        }
+                        // Aggressive Auto-Scaling Matrix
+                        let compactClass = "";
+                        if (progs.length > 25) compactClass = "nano-table";
+                        else if (progs.length > 18) compactClass = "micro-table";
+                        else if (progs.length > 12) compactClass = "compact-table";
+                        else if (progs.length > 7) compactClass = "semi-compact-table";
+                        
+                        dynamicHtml += createTableView(viewCounter, title, progs, compactClass);
+                        viewCounter++;
                     }
                 });
             });
