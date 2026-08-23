@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>മെഹ്ഫിലെ നൂർ 2026 - TV Display</title>
+    <title>ലദൽ മദീന 2K26 - TV Display</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;700;800;900&family=Outfit:wght@400;800;900&family=Baloo+Chettan+2:wght@500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;700;800;900&family=Outfit:wght@400;800;900&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -40,8 +40,7 @@
         #start-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); z-index: 9999;
-            display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; 
-            -webkit-justify-content: center; justify-content: center; flex-direction: column; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer;
         }
         .start-btn { background: #ec4899; color: white; padding: 20px 40px; font-size: 24px; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 20px rgba(236,72,153,0.5); transition: 0.3s;}
         .start-btn:hover { transform: scale(1.05); }
@@ -114,12 +113,10 @@
         @keyframes popInGold { to { opacity: 1; transform: translateY(0) scale(1.08); } }
         @keyframes popInSub { to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        /* Sweeping Shimmer for Gold Card */
         .nr-winner-card.gold::after {
             content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
             background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
-            transform: skewX(-25deg);
-            animation: shine 4s infinite 2.5s;
+            transform: skewX(-25deg); animation: shine 4s infinite 2.5s;
         }
         @keyframes shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
@@ -130,7 +127,6 @@
 
         .nr-names { font-size: clamp(22px, 2.5vw, 34px); font-weight: 800; color: #f8fafc; line-height: 1.4; max-height: 140px; overflow-y: auto; width: 100%; margin: 10px 0;}
         .nr-winner-card.gold .nr-names { font-size: clamp(30px, 3.5vw, 48px); color: #ffffff; max-height: 180px; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
-        
         .nr-names::-webkit-scrollbar { width: 6px; }
         .nr-names::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 10px; }
 
@@ -138,10 +134,7 @@
         .nr-team.kw { background: linear-gradient(135deg, #be123c, #9f1239); color: #fda4af; border: 1px solid #fda4af;}
         .nr-team.kf { background: linear-gradient(135deg, #4338ca, #312e81); color: #a5b4fc; border: 1px solid #a5b4fc;}
 
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 30px rgba(251,191,36,0.8); }
-            50% { box-shadow: 0 0 60px rgba(251,191,36,1); }
-        }
+        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 30px rgba(251,191,36,0.8); } 50% { box-shadow: 0 0 60px rgba(251,191,36,1); } }
 
         .nav-zone { position: fixed; top: 0; bottom: 0; width: 10vw; z-index: 9000; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
         .nav-zone:hover { opacity: 1; }
@@ -151,14 +144,14 @@
 
         .view-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; padding: 15px 30px; -webkit-flex-direction: column; flex-direction: column;
+            display: none; padding: 15px 30px; flex-direction: column;
             animation: fadeIn 0.8s ease-in-out; overflow: hidden;
         }
-        .view-active { display: -webkit-flex; display: flex; }
+        .view-active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* INCREASED LOGO SIZE HERE */
         .header { text-align: center; margin-bottom: 10px; }
-        .fest-logo-img { height: clamp(60px, 12vh, 130px); object-fit: contain; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8)); border-radius: 10px; }
+        .fest-logo-img { height: clamp(70px, 15vh, 150px); object-fit: contain; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8)); border-radius: 10px; }
         .page-title { text-align: center; font-size: clamp(14px, 2vw, 18px); color: #fbbf24; margin-bottom: 10px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 10px; text-transform: uppercase; letter-spacing: 1px;}
 
         /* SCORE VIEW */
@@ -233,8 +226,7 @@
         .s-grp { background: #78350f; color: #fcd34d; }
         .s-nst { background: #0f766e; color: #a7f3d0; }
         
-        .pt-team-a { color: #fb7185; } 
-        .pt-team-b { color: #818cf8; }
+        .pt-team-a { color: #fb7185; } .pt-team-b { color: #818cf8; }
         .br-left { border-left: 2px solid #334155; }
         .col-28 { width: 28%; } .col-12 { width: 12%; }
 
@@ -440,7 +432,7 @@
                     showCurrentView();
                     resetRotation(); // Restart countdown from here
                 }, 500);
-            }, 18000); // Hold for 18 seconds to enjoy the massive names
+            }, 18000); // Hold for 18 seconds
         }
 
         function startApp() {
@@ -499,6 +491,16 @@
             return teams.length > 0 ? teams.join(' & ') : '-';
         }
 
+        function getProgramPoints(progNo) {
+            const pNo = String(progNo).trim();
+            const pts15 = ['551', '552', '553', '501', '502'];
+            const pts10 = ['54', '154', '155', '257', '259', '458', '04', '4', '105', '107', '205', '206', '208', '303', '304', '403'];
+            
+            if (pts15.includes(pNo)) return { p1: 15, p2: 10, p3: 5 };
+            if (pts10.includes(pNo)) return { p1: 10, p2: 7, p3: 5 };
+            return { p1: 5, p2: 3, p3: 1 };
+        }
+
         function createTableView(viewId, title, progs, compactClass) {
             var taName = getTeamName('teamA'); var tbName = getTeamName('teamB');
             var headerImg = `<div class="header"><div class="flex items-center justify-center drop-shadow-lg mb-3" style="display:flex; justify-content:center; align-items:center;"><img src="1000741398.jpg" class="fest-logo-img"></div></div>`;
@@ -517,7 +519,10 @@
                 var a1="-", a2="-", a3="-", b1="-", b2="-", b3="-";
 
                 if (tRes) {
-                    var tF = tRes.pts1 || (isGrp ? 10 : 5); var tS = tRes.pts2 || (isGrp ? 5 : 3); var tT = tRes.pts3 || (isGrp ? 3 : 1);
+                    var pts = getProgramPoints(tProg.progNo);
+                    var tF = tRes.pts1 || pts.p1; 
+                    var tS = tRes.pts2 || pts.p2; 
+                    var tT = tRes.pts3 || pts.p3;
                     var checkPts = function(ids, pts) {
                         var arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
                         for(var k=0; k<arr.length; k++) {
@@ -569,7 +574,11 @@
             state.results.forEach(res => {
                 var prog = getProg(res.progId);
                 var isGrp = prog ? prog.isGroup === true : false;
-                var fPts = res.pts1 || (isGrp ? 10 : 5); var sPts = res.pts2 || (isGrp ? 5 : 3); var tPts = res.pts3 || (isGrp ? 3 : 1);
+                
+                var pts = getProgramPoints(prog ? prog.progNo : '');
+                var fPts = res.pts1 || pts.p1; 
+                var sPts = res.pts2 || pts.p2; 
+                var tPts = res.pts3 || pts.p3;
 
                 var addPts = function(ids, pts) {
                     var arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
