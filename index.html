@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>മെഹ്ഫിലെ നൂർ 2026 - TV Display</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;700;800&family=Outfit:wght@400;800;900&family=Baloo+Chettan+2:wght@500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;700;800;900&family=Outfit:wght@400;800;900&family=Baloo+Chettan+2:wght@500;700;800&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -50,60 +50,97 @@
 
         #new-result-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: radial-gradient(circle at top center, #4c1d95 0%, #020617 80%);
+            background: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
             z-index: 9500; display: none; opacity: 0; flex-direction: column;
-            align-items: center; justify-content: center; padding: 30px;
+            align-items: center; justify-content: center; padding: 20px;
             transition: opacity 0.5s ease-in-out; overflow: hidden;
+            perspective: 1000px;
         }
+        
+        .nr-light-rays {
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: repeating-conic-gradient(from 0deg, transparent 0deg 15deg, rgba(139, 92, 246, 0.15) 15deg 30deg);
+            animation: spinRays 40s linear infinite; z-index: 0; pointer-events: none;
+        }
+        @keyframes spinRays { 100% { transform: rotate(360deg); } }
         
         .nr-glass-panel {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px); border: 2px solid rgba(139, 92, 246, 0.4);
-            border-radius: 30px; padding: 40px; width: 95%; max-width: 1400px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 30px rgba(139, 92, 246, 0.2);
+            background: rgba(10, 10, 30, 0.6);
+            backdrop-filter: blur(25px); border: 2px solid rgba(139, 92, 246, 0.5);
+            border-radius: 40px; padding: 50px; width: 95%; max-width: 1500px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.9), inset 0 0 40px rgba(139, 92, 246, 0.3);
             display: flex; flex-direction: column; align-items: center; text-align: center;
-            transform: translateY(50px); animation: slideUpReveal 0.8s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateY(100px) rotateX(10deg); opacity: 0; z-index: 1;
+            animation: cinematicReveal 1s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        @keyframes slideUpReveal { to { transform: translateY(0); } }
+        @keyframes cinematicReveal { to { transform: translateY(0) rotateX(0deg); opacity: 1; } }
 
-        .nr-top-badge { background: #fbbf24; color: #78350f; font-weight: 900; padding: 8px 25px; border-radius: 30px; letter-spacing: 3px; font-size: 20px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(251,191,36,0.6); animation: pulseGlow 2s infinite;}
-        .nr-prog-title { font-size: clamp(45px, 6vw, 70px); color: #fff; font-weight: 900; line-height: 1.1; text-shadow: 0 10px 20px rgba(0,0,0,0.8); margin-bottom: 5px; }
-        .nr-prog-cat { font-size: clamp(20px, 3vw, 28px); color: #cbd5e1; font-weight: bold; text-transform: uppercase; margin-bottom: 30px; background: rgba(0,0,0,0.4); padding: 5px 20px; border-radius: 10px;}
+        .nr-top-badge { background: linear-gradient(90deg, #fbbf24, #f59e0b); color: #451a03; font-weight: 900; padding: 10px 30px; border-radius: 30px; letter-spacing: 4px; font-size: 24px; margin-bottom: 20px; box-shadow: 0 0 30px rgba(251,191,36,0.8); animation: pulseGlow 2s infinite;}
+        .nr-prog-title { font-size: clamp(45px, 6.5vw, 85px); font-weight: 900; background: linear-gradient(to bottom, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8)); margin-bottom: 5px; text-transform: uppercase;}
+        .nr-prog-cat { font-size: clamp(22px, 3.5vw, 30px); color: #fbbf24; font-weight: 900; text-transform: uppercase; margin-bottom: 25px; letter-spacing: 2px; text-shadow: 0 5px 10px rgba(0,0,0,0.8);}
 
-        .nr-winners-grid { display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center; }
-        .nr-sub-winners { display: flex; gap: 20px; width: 100%; justify-content: center; }
+        .nr-winners-grid { display: flex; flex-direction: column; gap: 25px; width: 100%; align-items: center; margin-top: 15px;}
+        .nr-sub-winners { display: flex; gap: 30px; width: 100%; justify-content: center; }
         
         .nr-winner-card {
-            background: rgba(0,0,0,0.6); border-radius: 20px; padding: 25px; flex: 1;
+            background: rgba(0,0,0,0.7); border-radius: 25px; padding: 30px; flex: 1;
             display: flex; flex-direction: column; align-items: center; text-align: center;
-            border-top: 5px solid; position: relative; overflow: hidden;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            border-top: 6px solid; position: relative; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            opacity: 0; transform: translateY(60px) scale(0.9);
         }
         
-        .nr-winner-card.gold { border-color: #fbbf24; background: linear-gradient(180deg, rgba(251,191,36,0.15) 0%, rgba(0,0,0,0.8) 100%); width: 100%; max-width: 900px; transform: scale(1.05); z-index: 2; border-width: 8px;}
-        .nr-winner-card.silver { border-color: #cbd5e1; background: linear-gradient(180deg, rgba(203,213,225,0.1) 0%, rgba(0,0,0,0.8) 100%); max-width: 440px;}
-        .nr-winner-card.bronze { border-color: #b45309; background: linear-gradient(180deg, rgba(180,83,9,0.1) 0%, rgba(0,0,0,0.8) 100%); max-width: 440px;}
+        .nr-winner-card.gold { 
+            border-color: #fbbf24; 
+            background: linear-gradient(180deg, rgba(251,191,36,0.2) 0%, rgba(0,0,0,0.9) 100%); 
+            width: 100%; max-width: 950px; border-width: 10px; z-index: 3;
+            box-shadow: 0 30px 60px rgba(251,191,36,0.4);
+            animation: popInGold 0.8s 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .nr-winner-card.silver { 
+            border-color: #e2e8f0; 
+            background: linear-gradient(180deg, rgba(226,232,240,0.15) 0%, rgba(0,0,0,0.9) 100%); 
+            max-width: 480px;
+            animation: popInSub 0.8s 1.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .nr-winner-card.bronze { 
+            border-color: #d97706; 
+            background: linear-gradient(180deg, rgba(217,119,6,0.15) 0%, rgba(0,0,0,0.9) 100%); 
+            max-width: 480px;
+            animation: popInSub 0.8s 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
 
-        .nr-medal { font-size: 35px; font-weight: 900; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; text-shadow: 0 5px 10px rgba(0,0,0,0.5);}
-        .nr-winner-card.gold .nr-medal { font-size: 50px; color: #fbbf24; }
-        .nr-winner-card.silver .nr-medal { color: #cbd5e1; }
-        .nr-winner-card.bronze .nr-medal { color: #b45309; }
+        @keyframes popInGold { to { opacity: 1; transform: translateY(0) scale(1.08); } }
+        @keyframes popInSub { to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        .nr-names { font-size: clamp(20px, 2.5vw, 32px); font-weight: bold; color: #fff; line-height: 1.3; max-height: 120px; overflow-y: auto; width: 100%;}
-        .nr-winner-card.gold .nr-names { font-size: clamp(26px, 3.5vw, 42px); color: #fff; max-height: 160px; }
+        /* Sweeping Shimmer for Gold Card */
+        .nr-winner-card.gold::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-25deg);
+            animation: shine 4s infinite 2.5s;
+        }
+        @keyframes shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+
+        .nr-medal { font-size: 40px; font-weight: 900; margin-bottom: 10px; display: inline-flex; align-items: center; gap: 10px; text-shadow: 0 5px 10px rgba(0,0,0,0.8); background: rgba(0,0,0,0.5); padding: 8px 30px; border-radius: 50px;}
+        .nr-winner-card.gold .nr-medal { font-size: 55px; color: #fbbf24; background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.4); }
+        .nr-winner-card.silver .nr-medal { color: #f8fafc; background: rgba(226,232,240,0.15); border: 1px solid rgba(226,232,240,0.4);}
+        .nr-winner-card.bronze .nr-medal { color: #f59e0b; background: rgba(217,119,6,0.15); border: 1px solid rgba(217,119,6,0.4);}
+
+        .nr-names { font-size: clamp(22px, 2.5vw, 34px); font-weight: 800; color: #f8fafc; line-height: 1.4; max-height: 140px; overflow-y: auto; width: 100%; margin: 10px 0;}
+        .nr-winner-card.gold .nr-names { font-size: clamp(30px, 3.5vw, 48px); color: #ffffff; max-height: 180px; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
         
-        /* Custom scrollbar for massive group names inside card */
-        .nr-names::-webkit-scrollbar { width: 5px; }
-        .nr-names::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+        .nr-names::-webkit-scrollbar { width: 6px; }
+        .nr-names::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 10px; }
 
-        .nr-team { font-size: 18px; font-weight: bold; margin-top: 15px; padding: 6px 20px; border-radius: 10px; text-transform: uppercase; letter-spacing: 1px;}
-        .nr-team.kw { background: rgba(251, 113, 133, 0.2); color: #fb7185; border: 1px solid rgba(251, 113, 133, 0.5);}
-        .nr-team.kf { background: rgba(129, 140, 248, 0.2); color: #818cf8; border: 1px solid rgba(129, 140, 248, 0.5);}
+        .nr-team { font-size: 22px; font-weight: 900; margin-top: 15px; padding: 10px 30px; border-radius: 12px; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);}
+        .nr-team.kw { background: linear-gradient(135deg, #be123c, #9f1239); color: #fda4af; border: 1px solid #fda4af;}
+        .nr-team.kf { background: linear-gradient(135deg, #4338ca, #312e81); color: #a5b4fc; border: 1px solid #a5b4fc;}
 
         @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 20px rgba(251,191,36,0.6); }
-            50% { box-shadow: 0 0 40px rgba(251,191,36,1); }
+            0%, 100% { box-shadow: 0 0 30px rgba(251,191,36,0.8); }
+            50% { box-shadow: 0 0 60px rgba(251,191,36,1); }
         }
 
         .nav-zone { position: fixed; top: 0; bottom: 0; width: 10vw; z-index: 9000; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
@@ -119,8 +156,9 @@
         }
         .view-active { display: -webkit-flex; display: flex; }
 
+        /* INCREASED LOGO SIZE HERE */
         .header { text-align: center; margin-bottom: 10px; }
-        .fest-logo-img { height: clamp(40px, 8vh, 85px); object-fit: contain; filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6)); border-radius: 10px; }
+        .fest-logo-img { height: clamp(60px, 12vh, 130px); object-fit: contain; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8)); border-radius: 10px; }
         .page-title { text-align: center; font-size: clamp(14px, 2vw, 18px); color: #fbbf24; margin-bottom: 10px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 10px; text-transform: uppercase; letter-spacing: 1px;}
 
         /* SCORE VIEW */
@@ -181,7 +219,6 @@
         .no-scroll-wrapper { flex: 1; background: rgba(0,0,0,0.4); border-radius: 0 0 10px 10px; overflow: hidden; display: flex; flex-direction: column; }
         .pt-table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
         
-        /* Flex row heights automatically to fill space without scroll */
         .pt-table tbody { display: flex; flex-direction: column; height: 100%; width: 100%; }
         .pt-table tbody tr { display: flex; width: 100%; flex: 1; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .pt-table td { display: flex; align-items: center; justify-content: center; height: 100%; overflow: hidden;}
@@ -201,32 +238,26 @@
         .br-left { border-left: 2px solid #334155; }
         .col-28 { width: 28%; } .col-12 { width: 12%; }
 
-        /* SCALING MATRIX (Guarantees fitting on 1 page without pagination) */
-        
-        /* DEFAULT (< 8 items) */
+        /* SCALING MATRIX */
         .pt-table td { font-size: 20px; font-weight: bold; padding: 5px 10px; }
         .p-name-txt { font-size: 20px; }
         .pt-team-a, .pt-team-b { font-size: 22px !important; }
 
-        /* SEMI-COMPACT (8 to 12 items) */
         .semi-compact-table td { font-size: 17px; padding: 4px 8px; }
         .semi-compact-table .p-name-txt { font-size: 17px; }
         .semi-compact-table .pt-team-a, .semi-compact-table .pt-team-b { font-size: 18px !important; }
         .semi-compact-table .s-tag { font-size: 9px; padding: 2px 4px;}
 
-        /* COMPACT (13 to 18 items) */
         .compact-table td { font-size: 14px; padding: 3px 5px; }
         .compact-table .p-name-txt { font-size: 14px; }
         .compact-table .pt-team-a, .compact-table .pt-team-b { font-size: 15px !important; }
         .compact-table .s-tag { font-size: 8px; padding: 2px 3px;}
 
-        /* MICRO (19 to 25 items) */
         .micro-table td { font-size: 12px; padding: 2px 4px; }
         .micro-table .p-name-txt { font-size: 12px; }
         .micro-table .pt-team-a, .micro-table .pt-team-b { font-size: 13px !important; }
-        .micro-table .s-tag { display: none; } /* Hide tags to save space */
+        .micro-table .s-tag { display: none; }
         
-        /* NANO (> 25 items) */
         .nano-table td { font-size: 10px; padding: 1px 3px; font-weight: normal;}
         .nano-table .p-name-txt { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 25vw; display: block;}
         .nano-table .pt-team-a, .nano-table .pt-team-b { font-size: 11px !important; font-weight: bold; }
@@ -342,10 +373,10 @@
             setTimeout(function() { flash.style.transition = 'opacity 0.8s ease-out'; flash.style.opacity = '0'; }, 50);
             
             try {
-                var d = 3 * 1000; var end = Date.now() + d;
+                var d = 4 * 1000; var end = Date.now() + d;
                 (function frame() {
-                    confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#fbbf24', '#ec4899', '#818cf8'] });
-                    confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#fbbf24', '#ec4899', '#818cf8'] });
+                    confetti({ particleCount: 4, angle: 60, spread: 65, origin: { x: 0 }, colors: ['#fbbf24', '#ec4899', '#818cf8', '#ffffff'] });
+                    confetti({ particleCount: 4, angle: 120, spread: 65, origin: { x: 1 }, colors: ['#fbbf24', '#ec4899', '#818cf8', '#ffffff'] });
                     if (Date.now() < end) requestAnimationFrame(frame);
                 }());
             } catch(e) {}
@@ -381,8 +412,9 @@
             }
 
             var html = `
+                <div class="nr-light-rays"></div>
                 <div class="nr-glass-panel">
-                    <div class="nr-top-badge">OFFICIAL RESULT</div>
+                    <div class="nr-top-badge">⚡ OFFICIAL RESULT ⚡</div>
                     <h1 class="nr-prog-title">${prog?.progNo ? `#${prog.progNo} ` : ''}${pName}</h1>
                     <h3 class="nr-prog-cat">${fullCatString}</h3>
                     <div class="nr-winners-grid">
@@ -408,7 +440,7 @@
                     showCurrentView();
                     resetRotation(); // Restart countdown from here
                 }, 500);
-            }, 15000); // Hold for 15 seconds
+            }, 18000); // Hold for 18 seconds to enjoy the massive names
         }
 
         function startApp() {
@@ -466,22 +498,16 @@
             var teams = []; arr.forEach(id => { var c = getCand(id); if(c) { var t = getTeamName(c.team); if(teams.indexOf(t) === -1) teams.push(t); }});
             return teams.length > 0 ? teams.join(' & ') : '-';
         }
-        function isGroupProgram(name, forceIsGroup) {
-            if (forceIsGroup !== undefined) return forceIsGroup;
-            if (!name) return false;
-            const n = name.toLowerCase();
-            return n.includes('group') || n.includes('burda') || n.includes('burdha') || n.includes('qawwali') || n.includes('mala') || n.includes('mash up') || n.includes('moulid') || n.includes('padappayatt') || n.includes('newspaper') || n.includes('collage');
-        }
 
         function createTableView(viewId, title, progs, compactClass) {
             var taName = getTeamName('teamA'); var tbName = getTeamName('teamB');
-            var headerImg = `<div class="header"><div class="flex items-center justify-center drop-shadow-lg mb-3" style="display:flex; justify-content:center; align-items:center;"><img src="1000741398.jpg" class="fest-logo-img" style="filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6)); border-radius:10px;"></div></div>`;
+            var headerImg = `<div class="header"><div class="flex items-center justify-center drop-shadow-lg mb-3" style="display:flex; justify-content:center; align-items:center;"><img src="1000741398.jpg" class="fest-logo-img"></div></div>`;
             
             var tbody = "";
             for (var p = 0; p < progs.length; p++) {
                 var tProg = progs[p];
                 var mlName = tProg.name.split('\n')[0];
-                var isGrp = tProg.isGroup !== undefined ? tProg.isGroup : isGroupProgram(tProg.name);
+                var isGrp = tProg.isGroup === true;
                 
                 var tTag = "";
                 if(tProg.type === "Non-Stage") tTag += "<span class='s-tag s-nst'>Non-Stage</span>";
@@ -542,7 +568,7 @@
             // Calculate live points
             state.results.forEach(res => {
                 var prog = getProg(res.progId);
-                var isGrp = prog ? (prog.isGroup !== undefined ? prog.isGroup : isGroupProgram(prog.name)) : false;
+                var isGrp = prog ? prog.isGroup === true : false;
                 var fPts = res.pts1 || (isGrp ? 10 : 5); var sPts = res.pts2 || (isGrp ? 5 : 3); var tPts = res.pts3 || (isGrp ? 3 : 1);
 
                 var addPts = function(ids, pts) {
@@ -571,7 +597,7 @@
 
             var dynamicHtml = '';
             var taName = getTeamName('teamA'); var tbName = getTeamName('teamB');
-            var headerImg = `<div class="header"><div class="flex items-center justify-center drop-shadow-lg mb-3" style="display:flex; justify-content:center; align-items:center;"><img src="1000741398.jpg" class="fest-logo-img" style="filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6)); border-radius:10px;"></div></div>`;
+            var headerImg = `<div class="header"><div class="flex items-center justify-center drop-shadow-lg mb-3" style="display:flex; justify-content:center; align-items:center;"><img src="1000741398.jpg" class="fest-logo-img"></div></div>`;
 
             // VIEW 1: DASHBOARD
             dynamicHtml += `
@@ -653,7 +679,6 @@
                     
                     if(progs.length > 0) {
                         progs.sort((a,b)=> Number(a.progNo || 0) - Number(b.progNo || 0));
-                        
                         let title = `${c.toUpperCase()} (${g})`;
                         
                         // Aggressive Auto-Scaling Matrix
