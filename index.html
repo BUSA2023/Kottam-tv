@@ -48,6 +48,40 @@
 
         #flash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9998; opacity: 0; pointer-events: none; }
 
+        /* --- NEW RESULT FULL SCREEN OVERLAY --- */
+        #new-result-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, #3b0764 0%, #020617 100%);
+            z-index: 9500; display: none; opacity: 0; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .nr-header { color: #fbbf24; font-size: clamp(30px, 4vw, 50px); font-weight: 900; letter-spacing: 3px; margin-bottom: 20px; text-shadow: 0 0 20px rgba(251,191,36,0.5); animation: pulseGlow 2s infinite; text-transform: uppercase; }
+        .nr-prog { font-size: clamp(40px, 6vw, 70px); color: #fff; font-weight: 900; text-align: center; margin-bottom: 10px; line-height: 1.2; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .nr-cat { background: #ec4899; color: white; padding: 5px 25px; border-radius: 20px; font-size: 20px; font-weight: bold; text-transform: uppercase; margin-bottom: 40px; box-shadow: 0 5px 15px rgba(236,72,153,0.5); }
+        
+        .nr-podium { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 1100px; }
+        .nr-rank { display: flex; align-items: center; background: rgba(0,0,0,0.6); border-radius: 20px; padding: 20px 30px; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 15px 30px rgba(0,0,0,0.4);}
+        .nr-rank.first { border-color: #fbbf24; background: linear-gradient(90deg, rgba(251,191,36,0.2) 0%, rgba(0,0,0,0.8) 100%); transform: scale(1.05); z-index: 2; margin-bottom: 10px;}
+        .nr-rank.second { border-color: #cbd5e1; }
+        .nr-rank.third { border-color: #b45309; }
+        
+        .nr-medal { font-size: clamp(50px, 6vw, 70px); margin-right: 30px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
+        .nr-rank.first .nr-medal { font-size: clamp(70px, 8vw, 90px); }
+        
+        .nr-details { flex: 1; display: flex; flex-direction: column; }
+        .nr-names { font-size: clamp(20px, 3vw, 35px); font-weight: bold; color: #fff; line-height: 1.3; }
+        .nr-rank.first .nr-names { font-size: clamp(25px, 4vw, 45px); color: #fbbf24; }
+        
+        .nr-team { font-size: 18px; font-weight: bold; margin-top: 8px; padding: 5px 15px; border-radius: 10px; width: fit-content; text-transform: uppercase; letter-spacing: 1px;}
+        .nr-team.kw { background: rgba(251, 113, 133, 0.2); color: #fb7185; border: 1px solid rgba(251, 113, 133, 0.5);}
+        .nr-team.kf { background: rgba(129, 140, 248, 0.2); color: #818cf8; border: 1px solid rgba(129, 140, 248, 0.5);}
+        
+        @keyframes pulseGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(251,191,36,0.5); }
+            50% { text-shadow: 0 0 40px rgba(251,191,36,0.9), 0 0 80px rgba(251,191,36,0.5); }
+        }
+
         /* Manual Nav Controls */
         .nav-zone { position: fixed; top: 0; bottom: 0; width: 10vw; z-index: 9000; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
         .nav-zone:hover { opacity: 1; }
@@ -136,6 +170,7 @@
         .p-name-txt { font-size: 18px; font-weight: bold; display: flex; flex-direction: column; line-height: 1.1; color: #f1f5f9; }
         .s-tag { font-size: 10px; background: #334155; padding: 3px 5px; border-radius: 4px; color: #cbd5e1; margin-left: 8px; font-weight: bold; text-transform: uppercase; flex-shrink: 0;}
         .s-grp { background: #78350f; color: #fcd34d; }
+        .s-nst { background: #0f766e; color: #a7f3d0; }
         
         .pt-team-a { color: #fb7185; font-size: 18px !important; } 
         .pt-team-b { color: #818cf8; font-size: 18px !important; }
@@ -147,7 +182,7 @@
         .compact-table td { padding: 4px 6px; font-size: 14px; }
         .compact-table .p-name-txt { font-size: 14px; }
 
-        #toast { position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 15px 30px; border-radius: 10px; font-size: 20px; font-weight: bold; transform: translateY(-150px); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.2); }
+        #toast { position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 15px 30px; border-radius: 10px; font-size: 20px; font-weight: bold; transform: translateY(-150px); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10000; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.2); }
         #toast.show { transform: translateY(0); }
     </style>
 </head>
@@ -159,10 +194,13 @@
 
     <div class="zero-gravity-bg" id="zg-bg"></div>
     <div id="flash-screen"></div>
+    
+    <!-- NEW RESULT OVERLAY -->
+    <div id="new-result-overlay"></div>
 
     <div id="start-overlay" onclick="startApp()">
         <button class="start-btn">Start Live Result TV</button>
-        <p style="margin-top:20px; font-size:16px; color:#94a3b8; text-align:center;">Click anywhere to launch</p>
+        <p style="margin-top:20px; font-size:16px; color:#94a3b8; text-align:center;">Click anywhere to launch<br><br><span style="color:#fbbf24">Supports Keyboard Navigation (Left/Right Arrows)</span></p>
     </div>
 
     <!-- UI Navigation Zones -->
@@ -249,25 +287,77 @@
             if (touchEndX - touchStartX > 50) prevView(); 
         });
 
-        function triggerEpicReveal() {
+        function triggerEpicReveal(newRes) {
+            if(!newRes) return;
             playSound('result');
             var flash = document.getElementById('flash-screen');
             flash.style.transition = 'none'; flash.style.opacity = '1';
             setTimeout(function() { flash.style.transition = 'opacity 0.8s ease-out'; flash.style.opacity = '0'; }, 50);
             
             try {
-                var d = 1.5 * 1000; var end = Date.now() + d;
+                var d = 3 * 1000; var end = Date.now() + d;
                 (function frame() {
-                    confetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#fbbf24', '#ec4899', '#818cf8'] });
-                    confetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#fbbf24', '#ec4899', '#818cf8'] });
+                    confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#fbbf24', '#ec4899', '#818cf8'] });
+                    confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#fbbf24', '#ec4899', '#818cf8'] });
                     if (Date.now() < end) requestAnimationFrame(frame);
                 }());
             } catch(e) {}
 
             showToast("🔥 പുതിയ റിസൾട്ട് പ്രസിദ്ധീകരിച്ചു! 🔥");
-            currentViewIndex = 2; // Auto Jump to Results Dashboard
-            showCurrentView();
-            resetRotation(); // Restart countdown from here
+            
+            // Build New Result Overlay
+            var prog = getProg(newRes.progId);
+            var pName = prog ? prog.name.split('\n')[0] : 'Unknown Program';
+            var pCat = prog ? prog.cat : '';
+            var isGrp = prog ? (prog.isGroup || isGroupProgram(pName)) : false;
+            
+            var buildRank = function(ids, rankClass, medal) {
+                var names = getCandNamesString(ids);
+                if (names === '-') return '';
+                var teamsStr = getTeamNamesString(ids);
+                var teamClass = teamsStr.includes('KHAIBAR') ? 'kw' : (teamsStr.includes('KHANDAQ') ? 'kf' : '');
+                
+                // Shrink text aggressively if it's a huge group
+                var nameArr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
+                var isMassive = nameArr.length > 5 || isGrp;
+
+                return `<div class="nr-rank ${rankClass}">
+                            <div class="nr-medal">${medal}</div>
+                            <div class="nr-details">
+                                <div class="nr-names" ${isMassive ? 'style="font-size: clamp(14px, 2vw, 24px);"' : ''}>${names}</div>
+                                <div class="nr-team ${teamClass}">${teamsStr}</div>
+                            </div>
+                        </div>`;
+            };
+
+            var html = `
+                <div class="nr-header">🎉 പുതിയ ഫലം (NEW RESULT) 🎉</div>
+                <div class="nr-prog">${prog?.progNo ? `#${prog.progNo} ` : ''}${pName}</div>
+                <div class="nr-cat">${pCat}</div>
+                <div class="nr-podium">
+                    ${buildRank(newRes.first, 'first', '🥇')}
+                    ${buildRank(newRes.second, 'second', '🥈')}
+                    ${buildRank(newRes.third, 'third', '🥉')}
+                </div>
+            `;
+            
+            var overlay = document.getElementById('new-result-overlay');
+            overlay.innerHTML = html;
+            overlay.style.display = 'flex';
+            void overlay.offsetWidth; // force reflow
+            overlay.style.opacity = '1';
+
+            if(slideTimer) clearInterval(slideTimer); // Pause rotation
+
+            setTimeout(function() {
+                overlay.style.opacity = '0';
+                setTimeout(function() { 
+                    overlay.style.display = 'none'; 
+                    currentViewIndex = 2; // Jump to Results Dashboard
+                    showCurrentView();
+                    resetRotation(); // Restart countdown from here
+                }, 500);
+            }, 15000); // Hold for 15 seconds
         }
 
         function startApp() {
@@ -327,6 +417,11 @@
             var teams = []; arr.forEach(id => { var c = getCand(id); if(c) { var t = getTeamName(c.team); if(teams.indexOf(t) === -1) teams.push(t); }});
             return teams.length > 0 ? teams.join(' & ') : '-';
         }
+        function isGroupProgram(name) {
+            if (!name) return false;
+            const n = name.toLowerCase();
+            return n.includes('group') || n.includes('burda') || n.includes('burdha') || n.includes('qawwali') || n.includes('mala') || n.includes('mash up') || n.includes('moulid') || n.includes('padappayatt') || n.includes('newspaper') || n.includes('collage');
+        }
 
         // Table Builder Helper
         function createTableView(viewId, title, progs, compactClass) {
@@ -337,9 +432,10 @@
             for (var p = 0; p < progs.length; p++) {
                 var tProg = progs[p];
                 var mlName = tProg.name.split('\n')[0];
-                var isGrp = tProg.isGroup || false;
+                var isGrp = tProg.isGroup !== undefined ? tProg.isGroup : isGroupProgram(tProg.name);
                 
-                var tTag = `<span class='s-tag' style='${tProg.type==="Non-Stage"?"background:#0f766e;":""}'>${tProg.type}</span>`;
+                var tTag = "";
+                if(tProg.type === "Non-Stage") tTag += "<span class='s-tag s-nst'>Non-Stage</span>";
                 if(isGrp) tTag += "<span class='s-tag s-grp'>Group</span>";
                 
                 var tRes = state.results.find(r => r.progId === tProg.id);
@@ -397,7 +493,7 @@
             // Calculate live points
             state.results.forEach(res => {
                 var prog = getProg(res.progId);
-                var isGrp = prog ? prog.isGroup : false;
+                var isGrp = prog ? (prog.isGroup !== undefined ? prog.isGroup : isGroupProgram(prog.name)) : false;
                 
                 var fPts = res.pts1 || (isGrp ? 10 : 5); var sPts = res.pts2 || (isGrp ? 5 : 3); var tPts = res.pts3 || (isGrp ? 3 : 1);
 
@@ -422,7 +518,7 @@
             var sortedRes = state.results.slice().sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
             
             if (prevScoreA !== -1 && (prevScoreA !== stats.teamA.total || prevScoreB !== stats.teamB.total)) { playSound('score'); showToast("പോയിന്റ് നില അപ്ഡേറ്റ് ചെയ്തു!"); }
-            if (prevTotalRes !== -1 && sortedRes.length > prevTotalRes) { triggerEpicReveal(); }
+            if (prevTotalRes !== -1 && sortedRes.length > prevTotalRes) { triggerEpicReveal(sortedRes[0]); }
             prevScoreA = stats.teamA.total; prevScoreB = stats.teamB.total; prevTotalRes = sortedRes.length;
 
             var dynamicHtml = '';
@@ -511,7 +607,7 @@
                         progs.sort((a,b)=> Number(a.progNo || 0) - Number(b.progNo || 0));
                         
                         // Balanced chunking to avoid 1-item pages
-                        let maxPerPage = 10;
+                        let maxPerPage = 9;
                         let numPages = Math.ceil(progs.length / maxPerPage);
                         let itemsPerPage = Math.ceil(progs.length / numPages);
                         
@@ -519,7 +615,10 @@
                             let chunk = progs.slice(i, i+itemsPerPage);
                             let title = `${c.toUpperCase()} (${g})`;
                             if (numPages > 1) title += ` - Part ${Math.floor(i/itemsPerPage)+1}`;
-                            let compactClass = chunk.length > 8 ? "compact-table" : "semi-compact-table";
+                            
+                            // Auto scale CSS
+                            let compactClass = chunk.length > 7 ? "compact-table" : (chunk.length > 5 ? "semi-compact-table" : "");
+                            
                             dynamicHtml += createTableView(viewCounter, title, chunk, compactClass);
                             viewCounter++;
                         }
