@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ലദൽ മദീന 2K26 - TV Display</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;700;800;900&family=Outfit:wght@400;800;900&display=swap" rel="stylesheet">
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -14,126 +12,47 @@
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: 'Anek Malayalam', sans-serif; 
-            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
-            color: #ffffff; overflow: hidden; height: 100vh; width: 100vw;
-        }
+        body { font-family: 'Anek Malayalam', sans-serif; background: linear-gradient(135deg, #020617 0%, #0f172a 100%); color: #ffffff; overflow: hidden; height: 100vh; width: 100vw; }
         .num-font { font-family: 'Outfit', sans-serif; }
         
-        .zero-gravity-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; overflow: hidden; pointer-events: none;
-        }
-        .orb {
-            position: absolute; border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-            animation: floatOrb infinite linear; opacity: 0;
-        }
-        @keyframes floatOrb {
-            0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-20vh) scale(1.5); opacity: 0; }
-        }
+        .zero-gravity-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none; }
+        .orb { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%); animation: floatOrb infinite linear; opacity: 0; }
+        @keyframes floatOrb { 0% { transform: translateY(110vh) scale(0.5); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-20vh) scale(1.5); opacity: 0; } }
 
-        #start-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 9999;
-            display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer;
-        }
+        #start-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer; }
         .start-btn { background: #ec4899; color: white; padding: 20px 40px; font-size: 24px; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 20px rgba(236,72,153,0.5); transition: 0.3s;}
         .start-btn:hover { transform: scale(1.05); }
-
         #flash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9998; opacity: 0; pointer-events: none; }
 
-        #new-result-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
-            z-index: 9500; display: none; opacity: 0; flex-direction: column;
-            align-items: center; justify-content: center; padding: 20px;
-            transition: opacity 0.5s ease-in-out; overflow: hidden;
-            perspective: 1000px;
-        }
-        
-        .nr-light-rays {
-            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: repeating-conic-gradient(from 0deg, transparent 0deg 15deg, rgba(139, 92, 246, 0.15) 15deg 30deg);
-            animation: spinRays 40s linear infinite; z-index: 0; pointer-events: none;
-        }
+        #new-result-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at center, #2e1065 0%, #020617 100%); z-index: 9500; display: none; opacity: 0; flex-direction: column; align-items: center; justify-content: center; padding: 20px; transition: opacity 0.5s ease-in-out; overflow: hidden; perspective: 1000px; }
+        .nr-light-rays { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: repeating-conic-gradient(from 0deg, transparent 0deg 15deg, rgba(139, 92, 246, 0.15) 15deg 30deg); animation: spinRays 40s linear infinite; z-index: 0; pointer-events: none; }
         @keyframes spinRays { 100% { transform: rotate(360deg); } }
-        
-        .nr-glass-panel {
-            background: rgba(10, 10, 30, 0.6);
-            backdrop-filter: blur(25px); border: 2px solid rgba(139, 92, 246, 0.5);
-            border-radius: 40px; padding: 50px; width: 95%; max-width: 1500px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.9), inset 0 0 40px rgba(139, 92, 246, 0.3);
-            display: flex; flex-direction: column; align-items: center; text-align: center;
-            transform: translateY(100px) rotateX(10deg); opacity: 0; z-index: 1;
-            animation: cinematicReveal 1s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
+        .nr-glass-panel { background: rgba(10, 10, 30, 0.6); backdrop-filter: blur(25px); border: 2px solid rgba(139, 92, 246, 0.5); border-radius: 40px; padding: 50px; width: 95%; max-width: 1500px; box-shadow: 0 40px 100px rgba(0,0,0,0.9), inset 0 0 40px rgba(139, 92, 246, 0.3); display: flex; flex-direction: column; align-items: center; text-align: center; transform: translateY(100px) rotateX(10deg); opacity: 0; z-index: 1; animation: cinematicReveal 1s forwards cubic-bezier(0.2, 0.8, 0.2, 1); }
         @keyframes cinematicReveal { to { transform: translateY(0) rotateX(0deg); opacity: 1; } }
-
         .nr-top-badge { background: linear-gradient(90deg, #fbbf24, #f59e0b); color: #451a03; font-weight: 900; padding: 10px 30px; border-radius: 30px; letter-spacing: 4px; font-size: 24px; margin-bottom: 20px; box-shadow: 0 0 30px rgba(251,191,36,0.8); animation: pulseGlow 2s infinite;}
         .nr-prog-title { font-size: clamp(45px, 6.5vw, 85px); font-weight: 900; background: linear-gradient(to bottom, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8)); margin-bottom: 5px; text-transform: uppercase;}
         .nr-prog-cat { font-size: clamp(22px, 3.5vw, 30px); color: #fbbf24; font-weight: 900; text-transform: uppercase; margin-bottom: 25px; letter-spacing: 2px; text-shadow: 0 5px 10px rgba(0,0,0,0.8);}
-
         .nr-winners-grid { display: flex; flex-direction: column; gap: 25px; width: 100%; align-items: center; margin-top: 15px;}
         .nr-sub-winners { display: flex; gap: 30px; width: 100%; justify-content: center; }
-        
-        .nr-winner-card {
-            background: rgba(0,0,0,0.7); border-radius: 25px; padding: 30px; flex: 1;
-            display: flex; flex-direction: column; align-items: center; text-align: center;
-            border-top: 6px solid; position: relative; overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            opacity: 0; transform: translateY(60px) scale(0.9);
-        }
-        
-        .nr-winner-card.gold { 
-            border-color: #fbbf24; 
-            background: linear-gradient(180deg, rgba(251,191,36,0.2) 0%, rgba(0,0,0,0.9) 100%); 
-            width: 100%; max-width: 950px; border-width: 10px; z-index: 3;
-            box-shadow: 0 30px 60px rgba(251,191,36,0.4);
-            animation: popInGold 0.8s 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        .nr-winner-card.silver { 
-            border-color: #e2e8f0; 
-            background: linear-gradient(180deg, rgba(226,232,240,0.15) 0%, rgba(0,0,0,0.9) 100%); 
-            max-width: 480px;
-            animation: popInSub 0.8s 1.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        .nr-winner-card.bronze { 
-            border-color: #d97706; 
-            background: linear-gradient(180deg, rgba(217,119,6,0.15) 0%, rgba(0,0,0,0.9) 100%); 
-            max-width: 480px;
-            animation: popInSub 0.8s 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
+        .nr-winner-card { background: rgba(0,0,0,0.7); border-radius: 25px; padding: 30px; flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; border-top: 6px solid; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.6); opacity: 0; transform: translateY(60px) scale(0.9); }
+        .nr-winner-card.gold { border-color: #fbbf24; background: linear-gradient(180deg, rgba(251,191,36,0.2) 0%, rgba(0,0,0,0.9) 100%); width: 100%; max-width: 950px; border-width: 10px; z-index: 3; box-shadow: 0 30px 60px rgba(251,191,36,0.4); animation: popInGold 0.8s 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .nr-winner-card.silver { border-color: #e2e8f0; background: linear-gradient(180deg, rgba(226,232,240,0.15) 0%, rgba(0,0,0,0.9) 100%); max-width: 480px; animation: popInSub 0.8s 1.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .nr-winner-card.bronze { border-color: #d97706; background: linear-gradient(180deg, rgba(217,119,6,0.15) 0%, rgba(0,0,0,0.9) 100%); max-width: 480px; animation: popInSub 0.8s 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popInGold { to { opacity: 1; transform: translateY(0) scale(1.08); } }
         @keyframes popInSub { to { opacity: 1; transform: translateY(0) scale(1); } }
-
-        .nr-winner-card.gold::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
-            transform: skewX(-25deg); animation: shine 4s infinite 2.5s;
-        }
+        .nr-winner-card.gold::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent); transform: skewX(-25deg); animation: shine 4s infinite 2.5s; }
         @keyframes shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
-
         .nr-medal { font-size: 40px; font-weight: 900; margin-bottom: 10px; display: inline-flex; align-items: center; gap: 10px; text-shadow: 0 5px 10px rgba(0,0,0,0.8); background: rgba(0,0,0,0.5); padding: 8px 30px; border-radius: 50px;}
         .nr-winner-card.gold .nr-medal { font-size: 55px; color: #fbbf24; background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.4); }
         .nr-winner-card.silver .nr-medal { color: #f8fafc; background: rgba(226,232,240,0.15); border: 1px solid rgba(226,232,240,0.4);}
         .nr-winner-card.bronze .nr-medal { color: #f59e0b; background: rgba(217,119,6,0.15); border: 1px solid rgba(217,119,6,0.4);}
-
         .nr-names { font-size: clamp(22px, 2.5vw, 34px); font-weight: 800; color: #f8fafc; line-height: 1.4; max-height: 140px; overflow-y: auto; width: 100%; margin: 10px 0;}
         .nr-winner-card.gold .nr-names { font-size: clamp(30px, 3.5vw, 48px); color: #ffffff; max-height: 180px; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
         .nr-names::-webkit-scrollbar { width: 6px; }
         .nr-names::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 10px; }
-
         .nr-team { font-size: 22px; font-weight: 900; margin-top: 15px; padding: 10px 30px; border-radius: 12px; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);}
-        .nr-team.kw { background: linear-gradient(135deg, #be123c, #9f1239); color: #fda4af; border: 1px solid #fda4af;}
+        .nr-team.kw { background: linear-gradient(135deg, #b45309, #d97706); color: #fef3c7; border: 1px solid #fef3c7;}
         .nr-team.kf { background: linear-gradient(135deg, #4338ca, #312e81); color: #a5b4fc; border: 1px solid #a5b4fc;}
-
         @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 30px rgba(251,191,36,0.8); } 50% { box-shadow: 0 0 60px rgba(251,191,36,1); } }
 
         .nav-zone { position: fixed; top: 0; bottom: 0; width: 10vw; z-index: 9000; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
@@ -142,23 +61,18 @@
         .nav-zone.right { right: 0; background: linear-gradient(to left, rgba(0,0,0,0.4), transparent); }
         .nav-btn { background: rgba(255,255,255,0.2); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; backdrop-filter: blur(5px); }
 
-        .view-container {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; padding: 15px 30px; flex-direction: column;
-            animation: fadeIn 0.8s ease-in-out; overflow: hidden;
-        }
+        .view-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; padding: 15px 30px; flex-direction: column; animation: fadeIn 0.8s ease-in-out; overflow: hidden; }
         .view-active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         .header { text-align: center; margin-bottom: 10px; }
-        .fest-logo-img { height: clamp(70px, 15vh, 150px); object-fit: contain; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8)); border-radius: 10px; }
+        .fest-logo-img { height: clamp(90px, 18vh, 180px); object-fit: contain; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8)); border-radius: 10px; }
         .page-title { text-align: center; font-size: clamp(14px, 2vw, 18px); color: #fbbf24; margin-bottom: 10px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 10px; text-transform: uppercase; letter-spacing: 1px;}
 
-        /* SCORE VIEW */
         .dashboard-content { display: flex; justify-content: space-around; align-items: center; flex: 1; padding: 0 50px; }
         .team-block { text-align: center; width: 40%; background: rgba(15, 23, 42, 0.6); padding: 30px; border-radius: 30px; border: 2px solid rgba(255,255,255,0.05); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .team-name { font-size: clamp(24px, 4vw, 45px); font-weight: bold; margin-bottom: 5px; }
-        .team-name.team-a { color: #fb7185; text-shadow: 0 0 20px rgba(251, 113, 133, 0.4); }
+        .team-name.team-a { color: #fbbf24; text-shadow: 0 0 20px rgba(251, 191, 36, 0.4); }
         .team-name.team-b { color: #818cf8; text-shadow: 0 0 20px rgba(129, 140, 248, 0.4); }
         .huge-points { font-size: clamp(60px, 13vw, 200px); font-weight: 900; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .gender-split { display: flex; justify-content: space-around; margin-top: 15px; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 10px; }
@@ -172,7 +86,6 @@
         .stat-value { font-size: clamp(24px, 4vw, 35px); font-weight: 900; color: #34d399; line-height: 1.2; text-shadow: 0 0 10px rgba(52,211,153,0.3);}
         .stat-label { font-size: clamp(10px, 1.5vw, 14px); color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;}
 
-        /* LATEST RESULTS VIEW */
         .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; flex: 1; align-content: start; overflow-y: auto; padding-right:10px; }
         .results-grid::-webkit-scrollbar { display: none; }
         .res-card { background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; position: relative; }
@@ -193,7 +106,7 @@
         .rc-row.third { border-left: 5px solid #b45309; }
         .rc-name { font-size: clamp(14px, 2vw, 18px); font-weight: bold; color: #f1f5f9; }
         .rc-team { font-size: 12px; font-weight: bold; padding: 3px 6px; border-radius: 4px; background: rgba(255,255,255,0.1); }
-        .rc-team.a { color: #fb7185; } .rc-team.b { color: #818cf8; }
+        .rc-team.a { color: #fbbf24; } .rc-team.b { color: #818cf8; }
 
         .ts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; flex: 1; align-content: center; }
         .ts-card { background: rgba(15,23,42,0.8); border: 2px solid rgba(251,191,36,0.3); border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.4);}
@@ -204,7 +117,7 @@
         .ts-award { font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
         .ts-name { font-size: 18px; font-weight: bold; color: #fff; margin-top: 2px; line-height: 1.1;}
         .ts-team { font-size: 10px; font-weight: bold; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-top: 5px; width: fit-content; background: rgba(255,255,255,0.1); }
-        .ts-team.a { color: #fb7185; } .ts-team.b { color: #818cf8; }
+        .ts-team.a { color: #fbbf24; } .ts-team.b { color: #818cf8; }
         .ts-pts { font-size: 35px; font-weight: 900; color: #34d399; padding-left: 10px; text-align: right; }
 
         .table-container { background: rgba(15, 23, 42, 0.8); border-radius: 15px; padding: 10px; border: 1px solid rgba(255,255,255,0.1); flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;}
@@ -224,13 +137,11 @@
         .p-name-txt { font-weight: bold; display: flex; flex-direction: column; line-height: 1.1; color: #f1f5f9; }
         .s-tag { font-size: 10px; background: #334155; padding: 3px 5px; border-radius: 4px; color: #cbd5e1; margin-left: 8px; font-weight: bold; text-transform: uppercase; flex-shrink: 0;}
         .s-grp { background: #78350f; color: #fcd34d; }
-        .s-nst { background: #0f766e; color: #a7f3d0; }
         
-        .pt-team-a { color: #fb7185; } .pt-team-b { color: #818cf8; }
+        .pt-team-a { color: #fbbf24; } .pt-team-b { color: #818cf8; }
         .br-left { border-left: 2px solid #334155; }
         .col-28 { width: 28%; } .col-12 { width: 12%; }
 
-        /* SCALING MATRIX */
         .pt-table td { font-size: 20px; font-weight: bold; padding: 5px 10px; }
         .p-name-txt { font-size: 20px; }
         .pt-team-a, .pt-team-b { font-size: 22px !important; }
@@ -494,7 +405,7 @@
         function getProgramPoints(progNo) {
             const pNo = String(progNo).trim();
             const pts15 = ['551', '552', '553', '501', '502'];
-            const pts10 = ['54', '155', '257', '458', '04', '4', '105', '205', '206', '303', '304', '403'];
+            const pts10 = ['54', '155', '257', '458', '04', '105', '205', '206', '303', '304', '403', '360'];
             
             if (pts15.includes(pNo)) return { p1: 15, p2: 10, p3: 5 };
             if (pts10.includes(pNo)) return { p1: 10, p2: 7, p3: 5 };
@@ -512,17 +423,14 @@
                 var isGrp = tProg.isGroup === true;
                 
                 var tTag = "";
-                if(tProg.type === "Non-Stage") tTag += "<span class='s-tag s-nst'>Non-Stage</span>";
                 if(isGrp) tTag += "<span class='s-tag s-grp'>Group</span>";
                 
                 var tRes = state.results.find(r => r.progId === tProg.id);
                 var a1="-", a2="-", a3="-", b1="-", b2="-", b3="-";
 
                 if (tRes) {
-                    var pts = getProgramPoints(tProg.progNo);
-                    var tF = tRes.pts1 || pts.p1; 
-                    var tS = tRes.pts2 || pts.p2; 
-                    var tT = tRes.pts3 || pts.p3;
+                    var ptsObj = getProgramPoints(tProg.progNo);
+                    var tF = tRes.pts1 || ptsObj.p1; var tS = tRes.pts2 || ptsObj.p2; var tT = tRes.pts3 || ptsObj.p3;
                     var checkPts = function(ids, pts) {
                         var arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
                         for(var k=0; k<arr.length; k++) {
@@ -567,18 +475,18 @@
         function renderAll() {
             if (!appStarted) return;
             
-            var stats = { teamA: { total:0, boys:0, girls:0 }, teamB: { total:0, boys:0, girls:0 } };
+            var stats = { teamA: { total:0, boys:0, girls:0, junior:0, senior:0, general:0 }, teamB: { total:0, boys:0, girls:0, junior:0, senior:0, general:0 } };
             var candPoints = {}; 
 
-            // Calculate live points
             state.results.forEach(res => {
                 var prog = getProg(res.progId);
                 var isGrp = prog ? prog.isGroup === true : false;
+                var cat = prog ? prog.cat : 'General';
+                var pNo = prog ? String(prog.progNo).trim() : '';
+                var isConv = ['107', '208', '154', '259'].includes(pNo);
                 
-                var pts = getProgramPoints(prog ? prog.progNo : '');
-                var fPts = res.pts1 || pts.p1; 
-                var sPts = res.pts2 || pts.p2; 
-                var tPts = res.pts3 || pts.p3;
+                var ptsObj = getProgramPoints(pNo);
+                var fPts = res.pts1 || ptsObj.p1; var sPts = res.pts2 || ptsObj.p2; var tPts = res.pts3 || ptsObj.p3;
 
                 var addPts = function(ids, pts) {
                     var arr = Array.isArray(ids) ? ids : (ids ? [ids] : []);
@@ -590,8 +498,14 @@
                                 stats[tKey].total += pts; 
                                 if(c.gender === 'BOYS') stats[tKey].boys += pts;
                                 if(c.gender === 'GIRLS') stats[tKey].girls += pts;
+                                
+                                if(cat === 'Junior') stats[tKey].junior += pts;
+                                if(cat === 'Senior') stats[tKey].senior += pts;
+                                if(cat === 'General') stats[tKey].general += pts;
                             }
-                            if(!isGrp) candPoints[c.id] = (candPoints[c.id] || 0) + pts;
+                            
+                            // Prevents Group AND Conversation points from affecting Kalaprathiba
+                            if(!isGrp && !isConv) candPoints[c.id] = (candPoints[c.id] || 0) + pts; 
                         }
                     });
                 };
@@ -670,7 +584,7 @@
             });
             dynamicHtml += `<div id="view-3" class="view-container">${headerImg}<div class="page-title">Top Scorers (കലാപ്രതിഭ & കലാതിലകം)</div><div class="ts-grid">${tsCards}</div></div>`;
 
-            // VIEWS 4+: DYNAMIC SINGLE PAGE TABLES (NO PARTS)
+            // VIEWS 4+: DYNAMIC SINGLE PAGE TABLES
             let viewCounter = 4;
             let cats = ['Kiddies', 'Sub Junior', 'Junior', 'Senior', 'Super Senior', 'General'];
             let genders = ['BOYS', 'GIRLS'];
@@ -690,7 +604,6 @@
                         progs.sort((a,b)=> Number(a.progNo || 0) - Number(b.progNo || 0));
                         let title = `${c.toUpperCase()} (${g})`;
                         
-                        // Aggressive Auto-Scaling Matrix
                         let compactClass = "";
                         if (progs.length > 25) compactClass = "nano-table";
                         else if (progs.length > 18) compactClass = "micro-table";
